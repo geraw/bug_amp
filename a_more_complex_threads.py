@@ -1,6 +1,9 @@
 # A More complex Threads
 
-MAX = 30
+import random
+
+
+MAX = 20
 NOISE = 1.5
 LOOP = 5
 k = -3
@@ -136,15 +139,3 @@ def thread1_complex():
             yield d3*abs(d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE) )
             exit(1, 'mutex')
     yield END
-
-
-base = 0
-count_pr = 0
-count = 0
-for _ in range(1000):
-  print(f"{_=}")
-  d = [random.randint(0, 5) for _ in range(MAX)]
-  base += simulate([thread0_complex, thread1_complex],max_trials=1, no_found=1, init=init_complex, init_arg= d)
-print(base/count)
-
-

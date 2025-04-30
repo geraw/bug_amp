@@ -7,11 +7,18 @@ def simulate(_threads, max_trials=10, no_found=10, init=lambda: None, init_arg=N
     """
     Simulates the interaction of threads over a number of trials.
     """
-    global count, count_pr
+    global count, count_pr   
+    
     faults = 0
     for k in range(max_trials):
-        count += 1
-        count_pr += 1
+
+        try:
+            count += 1
+            count_pr += 1
+        except NameError:
+            count = 0
+            count_pr = 0       
+        
         try:
             if init_arg is not None:
                 init(init_arg)

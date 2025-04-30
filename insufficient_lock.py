@@ -1,5 +1,4 @@
 # Insufficient Lock
-
 import random
 from simulate import simulate
 
@@ -84,9 +83,6 @@ def thread_lock_1():
         flag = False  # Release lock
     yield END
 
-simulate([thread_lock_0, thread_lock_1],max_trials=100, no_found=100, init=init_lock, init_arg= [1, .01]*MAX)
-
-
 
 import time
 
@@ -129,12 +125,5 @@ def thread_lock_1():
         k -= int(1+ random.uniform(-NOISE,NOISE))
         #critical section()
     yield END
-base = 0
 
-count_pr = 0
-count = 0
-for _ in range(100):
-  d = [random.randint(0, 10) for _ in range(MAX)]
-  base += simulate([thread_lock_0, thread_lock_1],max_trials=100, no_found=100, init=init_lock, init_arg= d)
-print(base/count)
 

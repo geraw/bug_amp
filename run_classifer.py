@@ -15,6 +15,9 @@ from setup import find_max_predicted_prob, find_max_prob, set_run_test, train
 
 
 def run_classifier():
+    global count, X_accumulated, y_accumulated
+    count = 0
+    
     csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
     csv_cases_name = ['Non_atomic', 'testNset', 'boolean', 'condition', 'Barrier', 'semaphore', 'lock', 'complex', 'dragons', 'math']
     csv_title_line = []
