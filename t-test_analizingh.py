@@ -1,19 +1,21 @@
 # t-test analizingh
-
+import run_classifer
+import constants
+import csv
 csv_ab_title_line = []
 
-for case in storage_ab[0]:
-    for i in storage_ab[0][case]:
+for case in run_classifer.storage_ab[0]:
+    for i in run_classifer.storage_ab[0][case]:
         # for alg in storage_ab[case][i]:
-            for val in csv_A_B_name:  # Include 'best', '5th', '10th' for TT & BF
-                csv_ab_title_line.append(f'{case}_{i*N_TRAIN}k_{val}')
-    csv_ab_title_line.append(f'{case}_{i*N_TRAIN}_diff')
-    csv_ab_title_line.append(f'{case}_{i*N_TRAIN}_rel')
+            for val in run_classifer.csv_A_B_name:  # Include 'best', '5th', '10th' for TT & BF
+                csv_ab_title_line.append(f'{case}_{i*constants.N_TRAIN}k_{val}')
+    csv_ab_title_line.append(f'{case}_{i*constants.N_TRAIN}_diff')
+    csv_ab_title_line.append(f'{case}_{i*constants.N_TRAIN}_rel')
 
-with open(csv_ab_filename, 'w', newline='') as csvfile:
+with open(run_classifer.csv_ab_filename, 'w', newline='') as csvfile:
     csv_ab_writer = csv.writer(csvfile)
     csv_ab_writer.writerow(csv_ab_title_line)
-    csv_ab_writer.writerows(csv_ab_rows)
+    csv_ab_writer.writerows(run_classifer.csv_ab_rows)
 
 
     from scipy.stats import ttest_rel
@@ -24,25 +26,25 @@ with open(csv_ab_filename, 'w', newline='') as csvfile:
     csv_ab_title_line = []
 
     csv_ab_title_line.append('Case')
-    for i in range(1, NUM_TO_CHECK + 1):
-        csv_ab_title_line.append(f'{i*N_TRAIN}_statistic')
-        csv_ab_title_line.append(f'{i*N_TRAIN}_p_value')
-        csv_ab_title_line.append(f'{i*N_TRAIN}_significantly')
+    for i in range(1, constants.NUM_TO_CHECK + 1):
+        csv_ab_title_line.append(f'{i*constants.N_TRAIN}_statistic')
+        csv_ab_title_line.append(f'{i*constants.N_TRAIN}_p_value')
+        csv_ab_title_line.append(f'{i*constants.N_TRAIN}_significantly')
 
     csv_ab_writer.writerow(csv_ab_title_line)
 
-    for case in csv_cases_name:
+    for case in run_classifer.csv_cases_name:
         cl_values = []
         bf_values = []
         csv_ab_row = []
         csv_ab_row.append(case)
         # Perform paired t-tests for each index
-        for i in range(1, NUM_TO_CHECK + 1):
+        for i in range(1, constants.NUM_TO_CHECK + 1):
 
-            for l in range(NUM_OF_TESTS):
+            for l in range(constants.NUM_OF_TESTS):
                 # Ensure the case and index exist in storage_ab
-                cl = storage_ab[l][case][i]['CL']
-                bf = storage_ab[l][case][i]['BF']
+                cl = run_classifer.storage_ab[l][case][i]['CL']
+                bf = run_classifer.storage_ab[l][case][i]['BF']
                 cl_values.append(cl)
                 bf_values.append(bf)
                 all_cl_values.append(cl)

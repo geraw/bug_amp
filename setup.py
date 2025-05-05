@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import pearsonr
 from scipy.stats import spearmanr
 from scipy.stats import kendalltau
-
+import constants
 from constants import *
 from sklearn.neural_network import MLPClassifier
 from sklearn.utils import check_random_state
@@ -14,7 +14,6 @@ from sklearn.utils.random import sample_without_replacement
 from sklearn.utils import shuffle as util_shuffle
 from sklearn.datasets import make_classification
 from sklearn.calibration import CalibratedClassifierCV
-
 
 from sklearn.model_selection import train_test_split
 
@@ -26,6 +25,7 @@ prob: Callable = None
 def set_run_test(test_function: Callable) -> None:
     global run_test
     run_test = test_function
+    
 def set_prob(prob_function: Callable) -> None:
     global prob
     prob = prob_function
@@ -34,10 +34,10 @@ def set_prob(prob_function: Callable) -> None:
 def sample_best_Xs_using_model(clf, n=1):
     global run_test
 
-    X_candidates = rng.rand(N_TRAIN*1_000, n_features) * multip
+    X_candidates = constants.rng.rand(constants.N_TRAIN*1_000, constants.n_features) * constants.multip
 
     predicted_probs = clf.predict_proba(X_candidates)[:, 1]
-    top_n_indices = np.argsort(predicted_probs)[-N_TRAIN:]
+    top_n_indices = np.argsort(predicted_probs)[-constants.N_TRAIN:]
 
     X_in = [X_candidates[i] for i in top_n_indices]
     y_in = np.array([run_test(x) for x in X_in])
@@ -49,7 +49,7 @@ def sample_best_Xs_using_model(clf, n=1):
 def generate_test_data():
     global run_test
   
-    X_in = rng.rand(N_TRAIN, n_features) * multip
+    X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features) * constants.multip
     y_in = np.array([run_test(x) for x in X_in])
     print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
     return X_in, y_in
@@ -115,8 +115,8 @@ def compute_correlations(clf):
     # global random_state, n_informative, probability_factor, n_features, N_TEST
 
     # Create random X
-    X = rng.rand(N_TEST, n_features) * multip
-    # X = rng.rand(N_TEST, n_features) * 10
+    X = constants.rng.rand(constants.N_TEST, constants.n_features) * constants.multip
+    # X = constants.rng.rand(N_TEST, n_features) * 10
 
 
     # Get the predicted probabilities for the positive class (second column)
@@ -142,9 +142,9 @@ def compute_correlations(clf):
     # #===================================
     # Calculate Margalit's correlation
     df = pd.DataFrame({'X': list(X), 'probability': predicted_probs})
-    df = df.sort_values('probability', ascending=False).head(TOP_IN_MARGALITS_CORRELATION)
+    df = df.sort_values('probability', ascending=False).head(constants.TOP_IN_MARGALITS_CORRELATION)
 
-    m_correlation = sum([run_test(X) for X in df['X']])/TOP_IN_MARGALITS_CORRELATION
+    m_correlation = sum([run_test(X) for X in df['X']])/constants.TOP_IN_MARGALITS_CORRELATION
     # #===================================
 
     print(f"Margalit's rank correlation: {m_correlation}")
@@ -200,10 +200,10 @@ def func_to_minimize(X):
 # ===============================================================================
 def find_max_prob(n=1, D=None ):
     if D is None:
-        X = rng.rand(int((cost*N_TRAIN)/B), n_features) * multip
+        X = constants.rng.rand(int((constants.cost*constants.N_TRAIN)/constants.B), constants.n_features) * constants.multip
     else:
-        X = get_n_random_items(D, int((cost*N_TRAIN)/B))
-    probs = [prob(x, max_trials=B, no_found=B) for x in X]
+        X = get_n_random_items(D, int((cost*constants.N_TRAIN)/B))
+    probs = [prob(x, max_trials=constants.B, no_found=constants.B) for x in X]
 
     # Get indices of top n probabilities
     top_n_indices = np.argsort(probs)[-n:][::-1]  # Reverse order
@@ -242,7 +242,7 @@ def find_max_prob(n=1, D=None ):
 def find_max_predicted_prob(clf, n=1):
     #global random_state, n_informative, probability_factor, n_features
 
-    X_candidates = rng.rand(N_TEST, n_features) * multip # Generate a larger set of candidates
+    X_candidates = constants.rng.rand(constants.N_TEST, constants.n_features) * constants.multip # Generate a larger set of candidates
 
     predicted_probs = clf.predict_proba(X_candidates)[:, 1]
 

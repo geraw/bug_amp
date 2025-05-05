@@ -10,50 +10,51 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from scipy.stats import ttest_rel
 
+import constants
 from constants import *
 from setup import find_max_predicted_prob, find_max_prob, set_run_test, train, set_prob
+csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
+csv_cases_name = ['Non_atomic', 'testNset', 'boolean', 'condition', 'Barrier', 'semaphore', 'lock', 'complex', 'dragons', 'math']
+csv_title_line = []
+csv_val_name = ['best', '5th', '10th']  # Values to store for each algorithm
+csv_rows = []
+csv_filename = f'{csv_file_path}{csv_file_name}'
+
+# Updated structure: Each algorithm stores three values ('best', '5th', '10th')
+storage = {
+    case: {
+        i: {
+            alg: {
+                val: 0 for val in csv_val_name
+            } for alg in csv_alg_name
+        } for i in range(1, NUM_TO_CHECK + 1)
+    } for case in csv_cases_name
+}
+
+csv_A_B_name = ['CL', 'BF', 'Diff', 'Rel']
+csv_ab_title_line = []
+csv_ab_rows = []
+csv_ab_filename = f'{csv_file_path}{csv_ab_file_name}'
+
+storage_ab = {
+    test: {
+        case: {
+            i: {
+                val: 0 for val in csv_A_B_name
+            } for i in range(1, NUM_TO_CHECK + 1)
+        } for case in csv_cases_name
+    } for test in range(constants.NUM_OF_TESTS)
+}
+
+all_cl_values = []
+all_bf_values = []
+csv_ab_rows = []
 
 
 def run_classifier():
     global count, X_accumulated, y_accumulated
     count = 0
     
-    csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
-    csv_cases_name = ['Non_atomic', 'testNset', 'boolean', 'condition', 'Barrier', 'semaphore', 'lock', 'complex', 'dragons', 'math']
-    csv_title_line = []
-    csv_val_name = ['best', '5th', '10th']  # Values to store for each algorithm
-    csv_rows = []
-    csv_filename = f'{csv_file_path}{csv_file_name}'
-
-    # Updated structure: Each algorithm stores three values ('best', '5th', '10th')
-    storage = {
-        case: {
-            i: {
-                alg: {
-                    val: 0 for val in csv_val_name
-                } for alg in csv_alg_name
-            } for i in range(1, NUM_TO_CHECK + 1)
-        } for case in csv_cases_name
-    }
-
-    csv_A_B_name = ['CL', 'BF', 'Diff', 'Rel']
-    csv_ab_title_line = []
-    csv_ab_rows = []
-    csv_ab_filename = f'{csv_file_path}{csv_ab_file_name}'
-
-    storage_ab = {
-        test: {
-            case: {
-                i: {
-                    val: 0 for val in csv_A_B_name
-                } for i in range(1, NUM_TO_CHECK + 1)
-            } for case in csv_cases_name
-        } for test in range(NUM_OF_TESTS)
-    }
-
-    all_cl_values = []
-    all_bf_values = []
-    csv_ab_rows = []
 
     with open(csv_filename, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
@@ -71,7 +72,7 @@ def run_classifier():
         for l in range(NUM_OF_TESTS):
 
             # for name, pr , m, n, lower_bound, upper_bound in probs:
-            for name, run_test, prob , multip, n_features in probs:
+            for name, run_test, prob , constants.multip, n_features in probs:
                 
                 set_run_test(run_test)
                 set_prob(prob)
@@ -107,7 +108,7 @@ def run_classifier():
 
                 correlation_history = []  # Store correlation values
                 epsilon = 5.0 #Define epsilon
-                cost = 0
+                constants.cost = 0
                 conseq = 3
                 m_correletion = 0 # Initialize correlation
                 s_correletion = 0 # Initialize correlation
@@ -115,7 +116,7 @@ def run_classifier():
                 # ---------------------------------
                 # while m_correletion < M_CORRELETION_THRESHOLD and s_correletion < S_CORRELETION_THRESHOLD:
                 for _ in range (NUM_TO_CHECK):
-                    cost += 1
+                    constants.cost += 1
 
                     #-------------------- CL - Classifier -------------------------------
 
@@ -123,12 +124,12 @@ def run_classifier():
                     print("-----------------")
                     # m_correletion, s_correletion = compute_correlations(clf)
                     # correlation_history.append(s_correletion)
-                    print(f"Round {l} - {cost}")
+                    print(f"Round {l} - {constants.cost}")
                     print("---------------------------\n\n")
 
 
                     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                    file_name = f'{file_path}modle_{timestamp}_{cost}_{name}_{file_data}'
+                    file_name = f'{file_path}modle_{timestamp}_{constants.cost}_{name}_{file_data}'
 
                     # # Save the trained model
                     # with open(file_name, 'wb') as file:
@@ -153,15 +154,15 @@ def run_classifier():
 
                 #-------------------- SA - Eitan -------------------------------
 
-                    # bounds = [(0, multip) for _ in range(n_features)]
-                    # D0 = np.array(np.random.rand(n_features)) * multip
+                    # bounds = [(0, constants.multip) for _ in range(n_features)]
+                    # D0 = np.array(np.random.rand(n_features)) * constants.multip
                     # start_time = time.time()
-                    # u_max, pr_max = using_next_point(D0, bounds=bounds, epsilon=multip/10,  k=MAX_TRIALS, iter=int((N_TRAIN*cost)/MAX_TRIALS))
+                    # u_max, pr_max = using_next_point(D0, bounds=bounds, epsilon=multip/10,  k=MAX_TRIALS, iter=int((N_TRAIN*constants.cost)/MAX_TRIALS))
                     # end_time = time.time()
                     # pr_max = prob(u_max)
-                    # print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/20} 'prob function' {N_TRAIN*cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
+                    # print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/20} 'prob function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
                     # # print(f'{u_max=}')
-                    # storage[name][cost]['SA']['best'] = pr_max
+                    # storage[name][constants.cost]['SA']['best'] = pr_max
 
 
                 #-------------------- GA -------------------------------
@@ -169,29 +170,29 @@ def run_classifier():
                     # count_ex = 0
                     # start_time = time.time()
                     # # u_max, pr_max = run_ga(pop_size=max(int(sqrt(NO_FOUND)),15), max_gen=int(ITER/5), bounds=bounds)
-                    # u_max, pr_max = run_ga(pop_size=50, max_gen=int((N_TRAIN*cost)/50), bounds=bounds)
+                    # u_max, pr_max = run_ga(pop_size=50, max_gen=int((N_TRAIN*constants.cost)/50), bounds=bounds)
                     # end_time = time.time()
                     # pr_max = prob(u_max)
-                    # print(f"\n\tGenetic Algoritm: The result for max prob using GA method 'pr function' {N_TRAIN*cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
-                    # # storage[name][cost]['GA']['best'] = 0
-                    # storage[name][cost]['GA']['best'] = pr_max
+                    # print(f"\n\tGenetic Algoritm: The result for max prob using GA method 'pr function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
+                    # # storage[name][constants.cost]['GA']['best'] = 0
+                    # storage[name][constants.cost]['GA']['best'] = pr_max
 
                     # print("\n------------\n\n\n")
 
                 #-------------------- Save results  -------------------------------
 
-                    storage[name][cost]['Classifier']['best'] = sorted_max_real[0] if len(sorted_max_real) > 0 else None
-                    storage[name][cost]['Classifier']['5th'] = sorted_max_real[4] if len(sorted_max_real) > 4 else None
-                    storage[name][cost]['Classifier']['10th'] = sorted_max_real[9] if len(sorted_max_real) > 9 else None
+                    storage[name][constants.cost]['Classifier']['best'] = sorted_max_real[0] if len(sorted_max_real) > 0 else None
+                    storage[name][constants.cost]['Classifier']['5th'] = sorted_max_real[4] if len(sorted_max_real) > 4 else None
+                    storage[name][constants.cost]['Classifier']['10th'] = sorted_max_real[9] if len(sorted_max_real) > 9 else None
 
-                    storage[name][cost]['BF']['best'] = top_probs[0] if len(top_probs) > 0 else None
-                    storage[name][cost]['BF']['5th'] = top_probs[4] if len(top_probs) > 4 else None
-                    storage[name][cost]['BF']['10th'] = top_probs[9] if len(top_probs) > 9 else None
+                    storage[name][constants.cost]['BF']['best'] = top_probs[0] if len(top_probs) > 0 else None
+                    storage[name][constants.cost]['BF']['5th'] = top_probs[4] if len(top_probs) > 4 else None
+                    storage[name][constants.cost]['BF']['10th'] = top_probs[9] if len(top_probs) > 9 else None
 
-                    storage_ab[l][name][cost]['CL'] = sorted_max_real[0]
-                    storage_ab[l][name][cost]['BF'] = top_probs[0]
-                    storage_ab[l][name][cost]['Diff'] = storage_ab[l][name][cost]['CL'] - storage_ab[l][name][cost]['BF']
-                    storage_ab[l][name][cost]['Rel'] = storage_ab[l][name][cost]['CL'] / storage_ab[l][name][cost]['BF'] if storage_ab[l][name][cost]['BF']!=0 else None
+                    storage_ab[l][name][constants.cost]['CL'] = sorted_max_real[0]
+                    storage_ab[l][name][constants.cost]['BF'] = top_probs[0]
+                    storage_ab[l][name][constants.cost]['Diff'] = storage_ab[l][name][constants.cost]['CL'] - storage_ab[l][name][constants.cost]['BF']
+                    storage_ab[l][name][constants.cost]['Rel'] = storage_ab[l][name][constants.cost]['CL'] / storage_ab[l][name][constants.cost]['BF'] if storage_ab[l][name][constants.cost]['BF']!=0 else None
 
             csv_row = []
 

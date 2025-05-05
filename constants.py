@@ -13,6 +13,7 @@ cost = 0
 N_TEST = 1_000                     # Number of random elements for test the coore;etion
 count = 0
 count_pr = 0
+cost = 0
 random_state = 42
 multip = 1
 B=30
@@ -30,8 +31,8 @@ rng = np.random.RandomState(random_state)
 # file_path = f'/content/drive/MyDrive/BugAmplofication2025/results/'
 file_path = f'reports/'
 
-NUM_TO_CHECK =20
-NUM_OF_TESTS = 100          # number of tests for calculate the AVR and SDT of the methods
+NUM_TO_CHECK =5
+NUM_OF_TESTS = 10          # number of tests for calculate the AVR and SDT of the methods
 N_TRAIN = 1000                   # Number of random elements (increments) that the classifier is trained
 
 # Access individual arguments

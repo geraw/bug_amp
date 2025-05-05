@@ -1,23 +1,22 @@
 END_global = 100_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
 
 import numpy as np
-
+import constants
 
 def simulate(_threads, max_trials=10, no_found=10, init=lambda: None, init_arg=None, expected_invariant=None):
     """
     Simulates the interaction of threads over a number of trials.
     """
-    global count, count_pr   
     
     faults = 0
     for k in range(max_trials):
 
         try:
-            count += 1
-            count_pr += 1
+            constants.count += 1
+            constants.count_pr += 1
         except NameError:
-            count = 0
-            count_pr = 0       
+            constants.count = 0
+            constants.count_pr = 0       
         
         try:
             if init_arg is not None:
