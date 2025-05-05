@@ -21,10 +21,14 @@ from sklearn.model_selection import train_test_split
 
 # Add global variable declaration
 run_test: Callable = None
+prob: Callable = None
 
 def set_run_test(test_function: Callable) -> None:
     global run_test
     run_test = test_function
+def set_prob(prob_function: Callable) -> None:
+    global prob
+    prob = prob_function
 
 
 def sample_best_Xs_using_model(clf, n=1):
@@ -51,7 +55,7 @@ def generate_test_data():
     return X_in, y_in
 
 
-def accumulate_data(clf):
+def accumulate_data(clf, X_accumulated, y_accumulated):
     """Accumulates training data, potentially using a classifier for sampling.
 
     Args:
@@ -61,13 +65,21 @@ def accumulate_data(clf):
     Returns:
         A tuple containing the accumulated X and y data as NumPy arrays.
     """
-    global X_accumulated, y_accumulated
-
     try:
       # Exploration
       X, y = generate_test_data()
-      X_accumulated = np.concatenate([X_accumulated, X])
-      y_accumulated = np.concatenate([y_accumulated, y])
+
+      # Check if X_accumulated is empty
+      if X_accumulated.size == 0:
+          X_accumulated = X
+      else:
+          X_accumulated = np.concatenate([X_accumulated, X])
+
+      # Check if y_accumulated is empty
+      if y_accumulated.size == 0:
+          y_accumulated = y
+      else:
+          y_accumulated = np.concatenate([y_accumulated, y])
 
       # Exploitation
       X, y = sample_best_Xs_using_model(clf)
@@ -78,13 +90,12 @@ def accumulate_data(clf):
 
     return X_accumulated, y_accumulated
 
-def train(clf):
+def train(clf, X_accumulated, y_accumulated):
     # global random_state, n_informative, probability_factor, n_features
-    X, y = accumulate_data(clf)
+    X, y = accumulate_data(clf, X_accumulated, y_accumulated)
 
     print( f"{len(y)=}  {sum(y)/len(y)=}")
-    return clf.fit(X, y)
-
+    return clf.fit(X, y), X, y
 
 import pandas as pd
 

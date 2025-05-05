@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 from scipy.stats import ttest_rel
 
 from constants import *
-from setup import find_max_predicted_prob, find_max_prob, set_run_test, train
+from setup import find_max_predicted_prob, find_max_prob, set_run_test, train, set_prob
 
 
 def run_classifier():
@@ -74,6 +74,7 @@ def run_classifier():
             for name, run_test, prob , multip, n_features in probs:
                 
                 set_run_test(run_test)
+                set_prob(prob)
                 
                 print(f'{name=}')
 
@@ -118,7 +119,7 @@ def run_classifier():
 
                     #-------------------- CL - Classifier -------------------------------
 
-                    clf = train(clf)
+                    clf, X_accumulated, y_accumulated = train(clf, X_accumulated, y_accumulated)
                     print("-----------------")
                     # m_correletion, s_correletion = compute_correlations(clf)
                     # correlation_history.append(s_correletion)
