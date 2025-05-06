@@ -14,11 +14,15 @@ import constants
 from constants import *
 from setup import find_max_predicted_prob, find_max_prob, set_run_test, train, set_prob, generate_initial_examples
 csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
-csv_cases_name = ['Non_atomic', 'testNset', 'boolean', 'condition', 'Barrier', 'semaphore', 'lock', 'complex', 'dragons', 'math']
 csv_title_line = []
 csv_val_name = ['best', '5th', '10th']  # Values to store for each algorithm
 csv_rows = []
 csv_filename = f'{csv_file_path}{csv_file_name}'
+
+# csv_cases_name = ['Non_atomic', 'testNset', 'boolean', 'condition', 'Barrier', 'semaphore', 'lock', 'complex', 'dragons', 'math']
+csv_cases_name = []
+for name, _, _ , _, _ in probs:
+    csv_cases_name.append(name)
 
 # Updated structure: Each algorithm stores three values ('best', '5th', '10th')
 storage = {
@@ -73,7 +77,7 @@ def run_classifier():
         for l in range(NUM_OF_TESTS):
 
             # for name, pr , m, n, lower_bound, upper_bound in probs:
-            for name, run_test, prob , constants.multip, n_features in probs:
+            for name, run_test, prob , constants.multip, constants.n_features in probs:
                 
                 set_run_test(run_test)
                 set_prob(prob)
@@ -147,7 +151,7 @@ def run_classifier():
                 #-------------------- BF - Brout Force -------------------------------
 
                     B=30
-                    _, top_probs, _, _, max_BF =  find_max_prob(10)
+                    _, top_probs, _, _, max_BF =  find_max_prob(n=10)
                     print(f'\n\n\n')
                     print(f'\tBest BF - {top_probs[0]}') if len(top_probs) > 0 else print('\tBest BF - None')
                     print(f'\t5th best BF - {top_probs[4]}') if len(top_probs) > 4 else print('\t5th best BF - None')
