@@ -12,7 +12,7 @@ from scipy.stats import ttest_rel
 
 import constants
 from constants import *
-from setup import find_max_predicted_prob, find_max_prob, set_run_test, train, set_prob
+from setup import find_max_predicted_prob, find_max_prob, set_run_test, train, set_prob, generate_initial_examples
 csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
 csv_cases_name = ['Non_atomic', 'testNset', 'boolean', 'condition', 'Barrier', 'semaphore', 'lock', 'complex', 'dragons', 'math']
 csv_title_line = []
@@ -67,6 +67,7 @@ def run_classifier():
                             csv_title_line.append(f'{case}_{i}k_{alg}_{val}')
                     else:
                         csv_title_line.append(f'{case}_{i}k_{alg}_best')  # Only 'best' for other algorithms
+        
         csv_writer.writerow(csv_title_line)
 
         for l in range(NUM_OF_TESTS):
@@ -103,8 +104,9 @@ def run_classifier():
                 )
 
                 #cls = make_pipeline(StandardScaler(), SVC(gamma='auto', probability=True))
-                X_accumulated = np.empty((0, n_features))  # Initialize with 0 rows and n_features columns
-                y_accumulated = np.empty(0, dtype=int)      # Initialize as an empty integer array
+                X_accumulated, y_accumulated = generate_initial_examples()
+                
+                
 
                 correlation_history = []  # Store correlation values
                 epsilon = 5.0 #Define epsilon

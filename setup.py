@@ -46,6 +46,34 @@ def sample_best_Xs_using_model(clf, n=1):
     return X_in, y_in
 
 
+def generate_initial_examples():
+    global run_test
+    
+    X = np.empty((0, constants.n_features))  # Initialize with 0 rows and n_features columns
+    Y = np.empty(0, dtype=int)      # Initialize as an empty integer array
+  
+    for _ in range(constants.N_INITIAL_SAMPLES):
+        y = 0        
+        while y == 0:
+            x = constants.rng.rand(constants.n_features) * constants.multip
+            y = run_test(x)
+            
+        X = np.vstack([X, x])
+        Y = np.append(Y, y)
+        
+    return X,Y
+        
+    
+
+    
+    X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features) * constants.multip
+    y_in = np.array([run_test(x) for x in X_in])
+    print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
+    return X_in, y_in
+
+
+
+
 def generate_test_data():
     global run_test
   
