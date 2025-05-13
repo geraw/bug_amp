@@ -1,7 +1,9 @@
 # Run Classifer
 
 import datetime
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, StackingClassifier
+from sklearn.neural_network import MLPClassifier
+
 
 import numpy as np
 import csv
@@ -13,6 +15,10 @@ from scipy.stats import ttest_rel
 import constants
 from constants import *
 from setup import find_max_predicted_prob, find_max_prob, set_run_test, train, set_prob, generate_initial_examples
+import simulate
+
+
+single_run_test = None
 csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
 csv_title_line = []
 csv_val_name = ['best', '5th', '10th']  # Values to store for each algorithm
@@ -55,8 +61,20 @@ all_bf_values = []
 csv_ab_rows = []
 
 
+def run_test_parallel(X, max_trials=1, no_found=1):
+    return all(not result for result in run_test_yield(X, max_trials=max_trials, no_found=no_found))
+
+def run_test_yield(X, max_trials=1, no_found=1):
+    global single_run_test
+    for i in range(N_PARALLEL):
+        # Extract the slice for the current iteration
+        x = X[i*n_features : (i + 1)*n_features]
+        # Run run_test and yield the result
+        yield single_run_test(x, max_trials=max_trials, no_found=no_found) == 0  # Simulate returns 0 if no assertion fails
+    
+    
 def run_classifier():
-    global count, X_accumulated, y_accumulated
+    global count, X_accumulated, y_accumulated,single_run_test
     count = 0
     
 
@@ -79,14 +97,15 @@ def run_classifier():
             # for name, pr , m, n, lower_bound, upper_bound in probs:
             for name, run_test, prob , constants.multip, constants.n_features in probs:
                 
-                set_run_test(run_test)
+                single_run_test = run_test
+                set_run_test(run_test_parallel)
                 set_prob(prob)
                 
                 print(f'{name=}')
 
-                # clf = MLPClassifier(hidden_layer_sizes=(100,  ), activation='relu',
-                #                     random_state=random_state, max_iter=2000 )
-                #                     # random_state=random_state, max_iter=2000, alpha=0.0001 )
+                clf = MLPClassifier(hidden_layer_sizes=(100,  ), activation='relu',
+                                    random_state=random_state, max_iter=2000 )
+                                    # random_state=random_state, max_iter=2000, alpha=0.0001 )
 
                 # clf = MLPClassifier(
                 #     hidden_layer_sizes=(50, 20),  # 2 hidden layers: 50 → 20 units
@@ -101,11 +120,11 @@ def run_classifier():
 
                 # clf = CalibratedClassifierCV(clf, method='isotonic')
 
-                clf = RandomForestClassifier(
-                    n_estimators=100,
-                    max_depth=None,
-                    max_features='sqrt',
-                )
+                # clf = RandomForestClassifier(
+                #     n_estimators=100,
+                #     max_depth=None,
+                #     max_features='sqrt',
+                # )
 
                 #cls = make_pipeline(StandardScaler(), SVC(gamma='auto', probability=True))
                 X_accumulated, y_accumulated = generate_initial_examples()
@@ -125,7 +144,7 @@ def run_classifier():
                     constants.cost += 1
 
                     #-------------------- CL - Classifier -------------------------------
-
+        
                     clf, X_accumulated, y_accumulated = train(clf, X_accumulated, y_accumulated)
                     print("-----------------")
                     # m_correletion, s_correletion = compute_correlations(clf)

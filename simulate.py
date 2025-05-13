@@ -36,3 +36,4 @@ def simulate(_threads, max_trials=10, no_found=10, init=lambda: None, init_arg=N
             if faults == no_found:
                 return faults
     return faults
+

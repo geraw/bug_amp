@@ -34,7 +34,7 @@ def set_prob(prob_function: Callable) -> None:
 def sample_best_Xs_using_model(clf, n=1):
     global run_test
 
-    X_candidates = constants.rng.rand(constants.N_TRAIN*1_000, constants.n_features) * constants.multip
+    X_candidates = constants.rng.rand(constants.N_TRAIN*1_000, constants.n_features*constants.N_PARALLEL) * constants.multip
 
     predicted_probs = clf.predict_proba(X_candidates)[:, 1]
     top_n_indices = np.argsort(predicted_probs)[-constants.N_TRAIN:]
@@ -49,13 +49,13 @@ def sample_best_Xs_using_model(clf, n=1):
 def generate_initial_examples():
     global run_test
     
-    X = np.empty((0, constants.n_features))  # Initialize with 0 rows and n_features columns
+    X = np.empty((0, constants.n_features*constants.N_PARALLEL))  # Initialize with 0 rows and n_features columns
     Y = np.empty(0, dtype=int)      # Initialize as an empty integer array
   
     for _ in range(constants.N_INITIAL_SAMPLES):
         y = 0        
         while y == 0:
-            x = constants.rng.rand(constants.n_features) * constants.multip
+            x = constants.rng.rand(constants.n_features*constants.N_PARALLEL) * constants.multip
             y = run_test(x)
             
         X = np.vstack([X, x])
@@ -77,7 +77,7 @@ def generate_initial_examples():
 def generate_test_data():
     global run_test
   
-    X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features) * constants.multip
+    X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features*constants.N_PARALLEL) * constants.multip
     y_in = np.array([run_test(x) for x in X_in])
     print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
     return X_in, y_in
@@ -143,7 +143,7 @@ def compute_correlations(clf):
     # global random_state, n_informative, probability_factor, n_features, N_TEST
 
     # Create random X
-    X = constants.rng.rand(constants.N_TEST, constants.n_features) * constants.multip
+    X = constants.rng.rand(constants.N_TEST, constants.n_features*constants.N_PARALLEL) * constants.multip
     # X = constants.rng.rand(N_TEST, n_features) * 10
 
 
@@ -228,7 +228,7 @@ def func_to_minimize(X):
 # ===============================================================================
 def find_max_prob(n=1, D=None ):
     if D is None:
-        X = constants.rng.rand(int((constants.cost*constants.N_TRAIN)/constants.B), constants.n_features) * constants.multip
+        X = constants.rng.rand(int((constants.cost*constants.N_TRAIN)/constants.B), constants.n_features*constants.N_PARALLEL) * constants.multip
     else:
         X = get_n_random_items(D, int((cost*constants.N_TRAIN)/B))
     probs = [prob(x, max_trials=constants.B, no_found=constants.B) for x in X]
@@ -270,7 +270,7 @@ def find_max_prob(n=1, D=None ):
 def find_max_predicted_prob(clf, n=1):
     #global random_state, n_informative, probability_factor, n_features
 
-    X_candidates = constants.rng.rand(constants.N_TEST, constants.n_features) * constants.multip # Generate a larger set of candidates
+    X_candidates = constants.rng.rand(constants.N_TEST, constants.n_features*constants.N_PARALLEL) * constants.multip # Generate a larger set of candidates
 
     predicted_probs = clf.predict_proba(X_candidates)[:, 1]
 
