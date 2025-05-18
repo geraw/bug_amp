@@ -28,7 +28,7 @@ import simulate
 
 
 single_run_test = None
-csv_alg_name = ['Classifier', 'BF', 'SA', 'GA']
+csv_alg_name = ['Ans','Classifier', 'BF', 'SA', 'GA']
 csv_title_line = []
 csv_val_name = ['best', '5th', '10th']  # Values to store for each algorithm
 csv_rows = []
@@ -50,7 +50,7 @@ storage = {
     } for case in csv_cases_name
 }
 
-csv_A_B_name = ['CL', 'BF', 'Diff', 'Rel']
+csv_A_B_name = ['Ans', 'CL', 'BF', 'Diff', 'Rel']
 csv_ab_title_line = []
 csv_ab_rows = []
 csv_ab_filename = f'{csv_file_path}{csv_ab_file_name}'
@@ -96,7 +96,7 @@ def run_classifier():
         for case in storage:
             for i in storage[case]:
                 for alg in storage[case][i]:
-                    if alg in ['Classifier', 'BF']:
+                    if alg in ['Ans','Classifier', 'BF']:
                         for val in csv_val_name:
                             csv_title_line.append(f'{case}_{i}k_{alg}_{val}')
                     else:
@@ -205,22 +205,22 @@ def run_classifier():
                     top_probs = [predicted_probs[i] for i in top_n_indices]
                     top_reals = [prob(x) for x in top_vectors]
 
-                    sorted_max_real = sorted(top_reals, reverse=True)
+                    sm_sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
-                    print(f'\tBest stacked_model balanced - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')
-                    print(f'\t5th best stacked_model balanced- {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')
-                    print(f'\t10th best stacked_model balanced- {sorted_max_real[9] if len(sorted_max_real) > 9 else None}')
+                    print(f'\tBest stacked_model balanced - {sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None}')
+                    print(f'\t5th best stacked_model balanced- {sm_sorted_max_real[4] if len(sm_sorted_max_real) > 4 else None}')
+                    print(f'\t10th best stacked_model balanced- {sm_sorted_max_real[9] if len(sm_sorted_max_real) > 9 else None}')
 
                     #------------------------------
 
                     # print(classification_report(y_test, y_pred, digits=4))
                     
-                    _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(stacked_model, 15)
+                    _, _, sm_sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(stacked_model, 15)
                     # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
-                    print(f'\tBest stacked_model - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')
-                    print(f'\t5th best stacked_model - {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')
-                    print(f'\t10th best stacked_model - {sorted_max_real[9] if len(sorted_max_real) > 9 else None}')
+                    print(f'\tBest stacked_model - {sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None}')
+                    print(f'\t5th best stacked_model - {sm_sorted_max_real[4] if len(sm_sorted_max_real) > 0 else None}')
+                    print(f'\t10th best stacked_model - {sm_sorted_max_real[9] if len(sm_sorted_max_real) > 0 else None}')
 
 
                     #-------------------- CL - Classifier -------------------------------
@@ -301,6 +301,10 @@ def run_classifier():
 
                 #-------------------- Save results  -------------------------------
 
+                    storage[name][constants.cost]['Ans']['best'] = sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None
+                    storage[name][constants.cost]['Ans']['5th'] = sm_sorted_max_real[4] if len(sm_sorted_max_real) > 4 else None
+                    storage[name][constants.cost]['Ans']['10th'] = sm_sorted_max_real[9] if len(sm_sorted_max_real) > 9 else None
+
                     storage[name][constants.cost]['Classifier']['best'] = sorted_max_real[0] if len(sorted_max_real) > 0 else None
                     storage[name][constants.cost]['Classifier']['5th'] = sorted_max_real[4] if len(sorted_max_real) > 4 else None
                     storage[name][constants.cost]['Classifier']['10th'] = sorted_max_real[9] if len(sorted_max_real) > 9 else None
@@ -309,6 +313,7 @@ def run_classifier():
                     storage[name][constants.cost]['BF']['5th'] = top_probs[4] if len(top_probs) > 4 else None
                     storage[name][constants.cost]['BF']['10th'] = top_probs[9] if len(top_probs) > 9 else None
 
+                    storage_ab[l][name][constants.cost]['Ans'] = sm_sorted_max_real[0]
                     storage_ab[l][name][constants.cost]['CL'] = sorted_max_real[0]
                     storage_ab[l][name][constants.cost]['BF'] = top_probs[0]
                     storage_ab[l][name][constants.cost]['Diff'] = storage_ab[l][name][constants.cost]['CL'] - storage_ab[l][name][constants.cost]['BF']
