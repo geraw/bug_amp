@@ -31,18 +31,18 @@ def set_prob(prob_function: Callable) -> None:
     prob = prob_function
 
 
-def sample_best_Xs_using_model(clf, n=1):
+def sample_best_Xs_using_model(model, n=1):
     global run_test
 
     X_candidates = constants.rng.rand(constants.N_TRAIN*1_000, constants.n_features*constants.N_PARALLEL) * constants.multip
 
-    predicted_probs = clf.predict_proba(X_candidates)[:, 1]
+    predicted_probs = model.predict_proba(X_candidates)[:, 1]
     top_n_indices = np.argsort(predicted_probs)[-constants.N_TRAIN:]
 
     X_in = [X_candidates[i] for i in top_n_indices]
     y_in = np.array([run_test(x) for x in X_in])
 
-    print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
+    print(f"Exploration {len(y_in)=}  {sum(y_in)/len(y_in)=}")
     return X_in, y_in
 
 
@@ -61,29 +61,27 @@ def generate_initial_examples():
         X = np.vstack([X, x])
         Y = np.append(Y, y)
         
+    print(f"Initial {len(Y)=}  {sum(Y)/len(Y)=}")  
     return X,Y
         
     
 
     
-    X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features) * constants.multip
-    y_in = np.array([run_test(x) for x in X_in])
-    print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
-    return X_in, y_in
-
-
-
+    # X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features) * constants.multip
+    # y_in = np.array([run_test(x) for x in X_in])
+    # print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
+    # return X_in, y_in
 
 def generate_test_data():
     global run_test
   
     X_in = constants.rng.rand(constants.N_TRAIN, constants.n_features*constants.N_PARALLEL) * constants.multip
     y_in = np.array([run_test(x) for x in X_in])
-    print(f"{len(y_in)=}  {sum(y_in)/len(y_in)=}")
+    print(f"Exploitation {len(y_in)=}  {sum(y_in)/len(y_in)=}")
     return X_in, y_in
 
 
-def accumulate_data(clf, X_accumulated, y_accumulated):
+def accumulate_data(model, X_accumulated, y_accumulated):
     """Accumulates training data, potentially using a classifier for sampling.
 
     Args:
@@ -98,32 +96,33 @@ def accumulate_data(clf, X_accumulated, y_accumulated):
       X, y = generate_test_data()
 
       # Check if X_accumulated is empty
-      if X_accumulated.size == 0:
+      if len(X_accumulated) == 0:
           X_accumulated = X
       else:
           X_accumulated = np.concatenate([X_accumulated, X])
 
       # Check if y_accumulated is empty
-      if y_accumulated.size == 0:
+      if len(y_accumulated) == 0:
           y_accumulated = y
       else:
           y_accumulated = np.concatenate([y_accumulated, y])
 
       # Exploitation
-      X, y = sample_best_Xs_using_model(clf)
+      X, y = sample_best_Xs_using_model(model)
       X_accumulated = np.concatenate([X_accumulated, X])
       y_accumulated = np.concatenate([y_accumulated, y])
+      print( f"{len(y_accumulated)=}  {sum(y_accumulated)/len(y_accumulated)=}")
+
     except NotFittedError:
       pass
 
     return X_accumulated, y_accumulated
 
 def train(clf, X_accumulated, y_accumulated):
-    # global random_state, n_informative, probability_factor, n_features
-    X, y = accumulate_data(clf, X_accumulated, y_accumulated)
+    # # global random_state, n_informative, probability_factor, n_features
+    # X, y = accumulate_data(clf, X_accumulated, y_accumulated)
 
-    print( f"{len(y)=}  {sum(y)/len(y)=}")
-    return clf.fit(X, y), X, y
+    return clf.fit(X_accumulated, y_accumulated)
 
 import pandas as pd
 
