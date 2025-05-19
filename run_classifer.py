@@ -19,8 +19,6 @@ from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 
 from imblearn.over_sampling import SMOTE
 
-
-
 import constants
 from constants import *
 from setup import *
@@ -76,6 +74,7 @@ def run_test_parallel(X, max_trials=1, no_found=1):
     return 1 if all(list(res)) else 0
 
 def run_test_yield(X, max_trials=1, no_found=1):
+    
     global single_run_test
     for i in range(constants.N_PARALLEL):
         # Extract the slice for the current iteration
@@ -86,7 +85,7 @@ def run_test_yield(X, max_trials=1, no_found=1):
     
     
 def run_classifier():
-    global count,single_run_test, X_accumulated_clf, y_accumulated_clf, X_accumulated_sm, y_accumulated_sm
+    global count,single_run_test, X_accumulated_clf, y_accumulated_clf, X_accumulated_sm, y_accumulated_sm, probs
     count = 0
     
 
@@ -141,7 +140,8 @@ def run_classifier():
                 base_learners = [
                     ('lr', LogisticRegression(max_iter=1000, class_weight='balanced')),
                     ('dt', DecisionTreeClassifier(class_weight='balanced')),
-                    ('rf', RandomForestClassifier(n_estimators=100, class_weight='balanced'))
+                    ('rf', RandomForestClassifier(n_estimators=100, class_weight='balanced')),
+                    ('mlp', MLPClassifier(hidden_layer_sizes=(50, 20), activation='relu', solver='adam', alpha=1e-4, learning_rate='adaptive', max_iter=500, early_stopping=True, validation_fraction=0.1, random_state=random_state))
                 ]
 
                 meta_learner = LogisticRegression(class_weight='balanced')
@@ -187,6 +187,9 @@ def run_classifier():
                     # print (f"Ansamble data: {len(X_accumulated_clf)=} {len(y_accumulated_clf)=} {len(X_accumulated_sm)=} {len(y_accumulated_sm)=}")
 
                     X_train, X_test, y_train, y_test = train_test_split(X_accumulated_sm, y_accumulated_sm, stratify=y_accumulated_sm, test_size=0.01, random_state=random_state)
+                    
+                    unique, counts = np.unique(y_accumulated_sm, return_counts=True)
+                    print(f'SM {dict(zip(unique, counts))=}')  # e.g., {0: 4500, 1: 500}
 
                     smote = SMOTE(random_state=random_state)
                     X_train_bal, y_train_bal = smote.fit_resample(X_train, y_train)
@@ -196,26 +199,46 @@ def run_classifier():
                     stacked_model.fit(X_train_bal, y_train_bal)
                     
                     
-                    y_pred = stacked_model.predict(X_train_bal)
                     
                     #-----------------------------
-                    predicted_probs = stacked_model.predict_proba(X_train_bal)[:, 1]
+                    probs = stacked_model.predict_proba(X_test)
+
+                    bug_probs = probs[:, 1]
+                    predicted_probs = stacked_model.predict_proba(X_accumulated_sm)[:, 1]
+
+                    top_buggy_indices = np.argsort(predicted_probs)[::-1][:5]
+                    for i in top_buggy_indices:
+                        print(f"Input: {X_accumulated_sm[i]}, score X ({prob(X_accumulated_sm[i]):.4f})")  
+
+
+                    
+                    
+                    # predicted_probs = stacked_model.predict_proba(X_train_bal)[:, 1]
+                    # top_n_indices = np.argsort(predicted_probs)[-15:]
+                    # top_vectors = [X_train_bal[i] for i in top_n_indices]
+                    # # top_probs = [predicted_probs[i] for i in top_n_indices]
+                    # top_reals = [prob(x) for x in top_vectors]
+
+                    # sm_sorted_max_real = sorted(top_reals, reverse=True)
+                    # print(f'sm_sorted_max_real = {sm_sorted_max_real}')
+                    # print(f'\n')
+                    # print(f'\tBest stacked_model balanced - {sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None}')
+                    # print(f'\t5th best stacked_model balanced- {sm_sorted_max_real[4] if len(sm_sorted_max_real) > 4 else None}')
+                    # print(f'\t10th best stacked_model balanced- {sm_sorted_max_real[9] if len(sm_sorted_max_real) > 9 else None}')
+
+                    # #------------------------------
+
+                    # # print(classification_report(y_test, y_pred, digits=4))
+                    
+                    # _, _, sm_sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(stacked_model, 15)
+                    predicted_probs = stacked_model.predict_proba(X_accumulated_sm)[:, 1]
                     top_n_indices = np.argsort(predicted_probs)[-15:]
-                    top_vectors = [X_train_bal[i] for i in top_n_indices]
-                    top_probs = [predicted_probs[i] for i in top_n_indices]
+                    top_vectors = [X_accumulated_sm[i] for i in top_n_indices]
+                    # top_probs = [predicted_probs[i] for i in top_n_indices]
                     top_reals = [prob(x) for x in top_vectors]
 
                     sm_sorted_max_real = sorted(top_reals, reverse=True)
-                    print(f'\n')
-                    print(f'\tBest stacked_model balanced - {sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None}')
-                    print(f'\t5th best stacked_model balanced- {sm_sorted_max_real[4] if len(sm_sorted_max_real) > 4 else None}')
-                    print(f'\t10th best stacked_model balanced- {sm_sorted_max_real[9] if len(sm_sorted_max_real) > 9 else None}')
 
-                    #------------------------------
-
-                    # print(classification_report(y_test, y_pred, digits=4))
-                    
-                    _, _, sm_sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(stacked_model, 15)
                     # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
                     print(f'\tBest stacked_model - {sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None}')
@@ -230,7 +253,7 @@ def run_classifier():
 
                     # Check class distribution
                     unique, counts = np.unique(y_accumulated_clf, return_counts=True)
-                    print(f'{dict(zip(unique, counts))=}')  # e.g., {0: 4500, 1: 500}
+                    print(f'clf {dict(zip(unique, counts))=}')  # e.g., {0: 4500, 1: 500}
                     X_train, X_test, y_train, y_test = train_test_split(X_accumulated_clf, y_accumulated_clf, stratify=y_accumulated_clf, test_size=0.01, random_state=42)
 
                     smote = SMOTE(random_state=42)
@@ -239,12 +262,12 @@ def run_classifier():
                     print(f"After SMOTE:, {dict(zip(*np.unique(y_train_bal, return_counts=True)))}")
                     
                     clf = train(clf, X_train_bal, y_train_bal)
-                    _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(clf, 15)
-                    # sorted_max_real = sorted(top_reals, reverse=True)
-                    print(f'\n')
-                    print(f'\tBest Classifier balanced - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')
-                    print(f'\t5th best Classifier balanced - {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')
-                    print(f'\t10th best Classifier balanced - {sorted_max_real[9] if len(sorted_max_real) > 9 else None}')
+                    # _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(clf, 15)
+                    # # sorted_max_real = sorted(top_reals, reverse=True)
+                    # print(f'\n')
+                    # print(f'\tBest Classifier balanced - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')
+                    # print(f'\t5th best Classifier balanced - {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')
+                    # print(f'\t10th best Classifier balanced - {sorted_max_real[9] if len(sorted_max_real) > 9 else None}')
 
                     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                     file_name = f'{file_path}modle_{timestamp}_{constants.cost}_{name}_{file_data}'
@@ -252,9 +275,17 @@ def run_classifier():
                     # # Save the trained model
                     # with open(file_name, 'wb') as file:
                     #     pickle.dump(clf, file)
-                    clf = train(clf, X_accumulated_clf, y_accumulated_clf)
+                    # clf = train(clf, X_accumulated_clf, y_accumulated_clf)
 
-                    _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(clf, 15)
+                    # _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(clf, 15)
+                    predicted_probs_clf = clf.predict_proba(X_accumulated_clf)[:, 1]
+                    top_n_indices_clf = np.argsort(predicted_probs_clf)[-15:]
+                    top_vectors_clf = [X_accumulated_clf[i] for i in top_n_indices_clf]
+                    # top_probs = [predicted_probs[i] for i in top_n_indices]
+                    top_reals_clf = [prob(x) for x in top_vectors_clf]
+
+                    sorted_max_real = sorted(top_reals_clf, reverse=True)
+
                     # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
                     print(f'\tBest Classifier - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')

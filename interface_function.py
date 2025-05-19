@@ -15,8 +15,10 @@ S=100
 def prob_our(X, max_trials=S, no_found=S):
     constants.count_pr = 0
     constants.count    = 0
-    base = setup.run_test(X, max_trials=max_trials, no_found=no_found)
-    return base/constants.count
+    base = 0
+    for _ in range(max_trials):
+        base += setup.run_test(X, max_trials=1, no_found=1)
+    return base/max_trials
 
 def run_test_our(X, max_trials=1, no_found=1):
     constants.count_pr = 0

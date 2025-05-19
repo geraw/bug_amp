@@ -17,7 +17,7 @@ cost = 0
 random_state = 42
 multip = 1
 B=30
-S=100
+S=40
 TOP_IN_MARGALITS_CORRELATION = 100
 bounds = [(0, multip) for _ in range(n_features)]
 MAX_TRIALS = 30
@@ -35,7 +35,7 @@ file_path = f'reports/'
 NUM_TO_CHECK = 20
 NUM_OF_TESTS = 30          # number of tests for calculate the AVR and SDT of the methods
 N_TRAIN = 1_000                   # Number of random elements (increments) that the classifier is trained
-N_PARALLEL = 2
+N_PARALLEL =2
 
 # Access individual arguments
 if len(sys.argv) > 1:
