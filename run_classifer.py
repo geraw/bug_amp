@@ -385,3 +385,34 @@ if __name__ == "__main__":
 
 
 
+
+
+
+# pip install nevergrad
+
+# import nevergrad as ng
+
+# # Define the objective function
+# def objective_function(x):
+#     # Replace this with your actual logic
+#     # Example: minimize the square of x
+#     return x[0]**2 + x[1]**2
+
+# # Define the search space
+# parametrization = ng.p.Array(shape=(2,)).set_bounds(-10, 10)  # Example: 2D search space with bounds
+
+# # Create the Simulated Annealing optimizer
+# optimizer = ng.optimizers.SimulatedAnnealing(parametrization=parametrization, budget=100)
+
+# # Run the optimization
+# recommendation = optimizer.minimize(objective_function)
+
+# # Get the best point
+# best_point = recommendation.value
+# print(f"Best point: {best_point}")
+
+
+# def objective_function(X):
+#     # Call your existing logic here
+#     result = setup.run_test(X)  # Example: Replace with your actual function
+#     return -result  # Negate if you want to maximize instead of minimize
