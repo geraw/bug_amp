@@ -13,6 +13,9 @@ from eckity.subpopulation import Subpopulation
 from eckity.termination_checkers.best_fitness_stagnation_termination_checker import BestFitnessStagnationTerminationChecker
 import eckity.termination_checkers
 from eckity.evaluators.simple_individual_evaluator import SimpleIndividualEvaluator
+import numpy as np
+import constants
+import setup
 
 
 class BugHuntingEvaluator(SimpleIndividualEvaluator):
@@ -22,7 +25,7 @@ class BugHuntingEvaluator(SimpleIndividualEvaluator):
         if items is None:
             # Generate ramdom items for the problem (keys=weights, values=values)
             # items = np.array(random_x(first_dim=m,second_dim=n, bounds=bounds))  **************
-            items = np.array(np.random.rand(n_features)) * multip
+            items = np.array(np.random.rand(constants.n_features)) * constants.multip
 
             # items = np.array(random_x())
         self.items = items
@@ -30,10 +33,10 @@ class BugHuntingEvaluator(SimpleIndividualEvaluator):
 
 
     def evaluate_individual(self, individual):
-          return run_test(individual.vector)
+          return setup.run_test(individual.vector)
 
 
-def run_ga(pop_size=50, max_gen=100, bounds=bounds):
+def run_ga(pop_size=50, max_gen=100, bounds=constants.bounds):
 
       algo = SimpleEvolution(
               Subpopulation(creators=GAFloatVectorCreator(length=len(bounds),bounds=bounds),
@@ -65,6 +68,6 @@ def run_ga(pop_size=50, max_gen=100, bounds=bounds):
       algo.evolve()
       best=algo.execute()
 
-      return best, prob(best)
+      return best, setup.prob(best)
 
 

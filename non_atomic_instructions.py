@@ -1,4 +1,5 @@
 # Non-Atomic Instructions
+import random
 
 # prompt: Thread 0
 # a = a + 1;
@@ -99,12 +100,12 @@ def thread2_NonAtomic():
             yield from critical_section_NonAtomic(2) # Replace with your actual critical section code
     yield END
 
-base = 0
-count_pr = 0
-count = 0
-for _ in range(100):
-  d = [random.randint(0, 10) for _ in range(MAX)]
-  base += simulate([thread0_NonAtomic, thread1_NonAtomic, thread2_NonAtomic],max_trials=100, no_found=100, init=init_NonAtomic, init_arg= d)
-print(base/count)
+# base = 0
+# count_pr = 0
+# count = 0
+# for _ in range(100):
+#   d = [random.randint(0, 10) for _ in range(MAX)]
+#   base += simulate([thread0_NonAtomic, thread1_NonAtomic, thread2_NonAtomic],max_trials=100, no_found=100, init=init_NonAtomic, init_arg= d)
+# print(base/count)
 
 

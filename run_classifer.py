@@ -18,11 +18,14 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 
 from imblearn.over_sampling import SMOTE
+from eitan import *
+from ga import *
 
 import constants
 from constants import *
 from setup import *
 import simulate
+import time
 
 
 single_run_test = None
@@ -85,7 +88,7 @@ def run_test_yield(X, max_trials=1, no_found=1):
     
     
 def run_classifier():
-    global count,single_run_test, X_accumulated_clf, y_accumulated_clf, X_accumulated_sm, y_accumulated_sm, probs
+    global count,single_run_test, X_accumulated_clf, y_accumulated_clf, X_accumulated_sm, y_accumulated_sm
     count = 0
     
 
@@ -106,7 +109,7 @@ def run_classifier():
         for l in range(NUM_OF_TESTS):
 
             # for name, pr , m, n, lower_bound, upper_bound in probs:
-            for name, run_test, prob , constants.multip, constants.n_features in probs:
+            for name, run_test, prob , constants.multip, constants.n_features in constants.probs:
                 
                 single_run_test = run_test
                 set_run_test(run_test_parallel)
@@ -144,7 +147,7 @@ def run_classifier():
                     ('mlp', MLPClassifier(hidden_layer_sizes=(50, 20), activation='relu', solver='adam', alpha=1e-4, learning_rate='adaptive', max_iter=500, early_stopping=True, validation_fraction=0.1, random_state=random_state))
                 ]
 
-                meta_learner = LogisticRegression(class_weight='balanced')
+                meta_learner = LogisticRegression(class_weight='balanced',max_iter=1000)
 
                 stacked_model = StackingClassifier(
                     estimators=base_learners,
@@ -305,30 +308,30 @@ def run_classifier():
 
                 #-------------------- SA - Eitan -------------------------------
 
-                    # bounds = [(0, constants.multip) for _ in range(n_features)]
-                    # D0 = np.array(np.random.rand(n_features)) * constants.multip
-                    # start_time = time.time()
-                    # u_max, pr_max = using_next_point(D0, bounds=bounds, epsilon=multip/10,  k=MAX_TRIALS, iter=int((N_TRAIN*constants.cost)/MAX_TRIALS))
-                    # end_time = time.time()
-                    # pr_max = prob(u_max)
-                    # print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/20} 'prob function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
-                    # # print(f'{u_max=}')
-                    # storage[name][constants.cost]['SA']['best'] = pr_max
+                    bounds = [(0, constants.multip) for _ in range(n_features)]
+                    D0 = np.array(np.random.rand(n_features)) * constants.multip
+                    start_time = time.time()
+                    u_max, pr_max = using_next_point(D0, bounds=bounds, epsilon=multip/10,  k=MAX_TRIALS, iter=int((2*N_TRAIN*constants.cost)/MAX_TRIALS))
+                    end_time = time.time()
+                    pr_max = prob(u_max)
+                    print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/20} 'prob function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
+                    # print(f'{u_max=}')
+                    storage[name][constants.cost]['SA']['best'] = pr_max
 
 
                 #-------------------- GA -------------------------------
-                    # # count=0
-                    # count_ex = 0
-                    # start_time = time.time()
-                    # # u_max, pr_max = run_ga(pop_size=max(int(sqrt(NO_FOUND)),15), max_gen=int(ITER/5), bounds=bounds)
-                    # u_max, pr_max = run_ga(pop_size=50, max_gen=int((N_TRAIN*constants.cost)/50), bounds=bounds)
-                    # end_time = time.time()
-                    # pr_max = prob(u_max)
-                    # print(f"\n\tGenetic Algoritm: The result for max prob using GA method 'pr function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
-                    # # storage[name][constants.cost]['GA']['best'] = 0
-                    # storage[name][constants.cost]['GA']['best'] = pr_max
+                    # count=0
+                    count_ex = 0
+                    start_time = time.time()
+                    # u_max, pr_max = run_ga(pop_size=max(int(sqrt(NO_FOUND)),15), max_gen=int(ITER/5), bounds=bounds)
+                    u_max, pr_max = run_ga(pop_size=50, max_gen=int((2*N_TRAIN*constants.cost)/50), bounds=bounds)
+                    end_time = time.time()
+                    pr_max = prob(u_max)
+                    print(f"\n\tGenetic Algoritm: The result for max prob using GA method 'pr function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
+                    # storage[name][constants.cost]['GA']['best'] = 0
+                    storage[name][constants.cost]['GA']['best'] = pr_max
 
-                    # print("\n------------\n\n\n")
+                    print("\n------------\n\n\n")
 
                 #-------------------- Save results  -------------------------------
 
@@ -355,7 +358,7 @@ def run_classifier():
             for case in csv_cases_name:
                 for i in range(1, NUM_TO_CHECK + 1):
                     for alg in csv_alg_name:
-                        if alg in ['Classifier', 'BF']:  # Include 'best', '5th', '10th' for classifier & BF
+                        if alg in ['Ans', 'Classifier', 'BF']:  # Include 'best', '5th', '10th' for classifier & BF
                             for val in csv_val_name:  # csv_val_name = ['best', '5th', '10th']
                                 csv_row.append(storage[case][i][alg][val])
                         else:  # Only 'best' for other algorithms

@@ -1,5 +1,5 @@
 # Simple Counter - Dragons
-
+import random
 
 MAX = 30
 NOISE = 0.5
@@ -59,12 +59,12 @@ def three_headed_dragon():
             yield from critical_section_dragon(3) # Assuming critical_section is defined elsewhere
     yield END
 
-base = 0
-count_pr = 0
-count = 0
-for _ in range(1000):
-    d = [random.randint(0, 5) for _ in range(MAX)]
-    base += simulate([five_headed_dragon, three_headed_dragon],max_trials=1, no_found=1, init=init_dragon, init_arg= d)
-print(base/count)
+# base = 0
+# count_pr = 0
+# count = 0
+# for _ in range(1000):
+#     d = [random.randint(0, 5) for _ in range(MAX)]
+#     base += simulate([five_headed_dragon, three_headed_dragon],max_trials=1, no_found=1, init=init_dragon, init_arg= d)
+# print(base/count)
 
 

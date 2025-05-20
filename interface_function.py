@@ -7,6 +7,8 @@ from condition_variables import Dequeue1, Dequeue2, Enqueue, init_queue
 from insufficient_lock import init_lock, thread_lock_0, thread_lock_1
 from simulate import simulate
 from the_barrier import init_fireball, thread_1, thread_2, thread_main
+from non_atomic_instructions import init_NonAtomic, thread0_NonAtomic, thread1_NonAtomic, thread2_NonAtomic
+from simple_counter_dragons import five_headed_dragon, three_headed_dragon, init_dragon
 import setup
 import constants
 

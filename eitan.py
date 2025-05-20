@@ -1,5 +1,9 @@
 # Eitan
 
+import numpy as np
+import constants
+import setup 
+
 def generate_within_bounds(u, epsilon, bounds):
     new_value = [0]*len(u)
     for i in range(len(u)):
@@ -18,7 +22,7 @@ def check_valid(u, bounds):
 # S = [generate_within_bounds(u, epsilon, bounds) for _ in range(k)]
 
 
-def next_point(u, epsilon=0.1, k=30, bounds=bounds):
+def next_point(u, epsilon=0.1, k=30, bounds=constants.bounds):
     # # Step 2: Randomly choose k points in the ball B(u, epsilon)
     # S = [u + epsilon * np.random.randn(len(u)) for _ in range(k)]
     # Generate S with values within the specified bounds
@@ -26,7 +30,7 @@ def next_point(u, epsilon=0.1, k=30, bounds=bounds):
 
 
     # Step 3: Execute each x_i and determine whether the bug was found
-    id_x = [run_test(np.array(x_i)) for x_i in S]
+    id_x = [setup.run_test(np.array(x_i)) for x_i in S]
 
     # Step 4: Create two averages N and P
     N = np.mean([x_i for x_i, id in zip(S, id_x) if id == 0], axis=0)
@@ -45,11 +49,11 @@ def next_point(u, epsilon=0.1, k=30, bounds=bounds):
     return u_next
 #-------------------------------------------
 
-def using_next_point(D0, epsilon=0.1, k=30, iter=1_000, bounds=bounds):
+def using_next_point(D0, epsilon=0.1, k=30, iter=1_000, bounds=constants.bounds):
 
       # Initialize u with a random point
       u = D0
-      pr_u=prob(D0)
+      pr_u=setup.prob(D0)
       # Execute the next_point function and collect cosine similarities
       pr_values = []
       cosine_similarity_values = []
@@ -61,7 +65,7 @@ def using_next_point(D0, epsilon=0.1, k=30, iter=1_000, bounds=bounds):
           v=u
           pr_v=pr_u
           u = next_point(u, k=k, epsilon=epsilon, bounds=bounds)
-          pr_u=run_test(u)
+          pr_u=setup.run_test(u)
           # if pr_v > pr_u:
           #     u = v
           #     pr_u = pr_v
