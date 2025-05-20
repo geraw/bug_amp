@@ -50,12 +50,12 @@ def t12():
   yield END
 
 
-base = 0
-count_pr = 0
-count = 0
-for _ in range(100):
-  d = [random.randint(0, 10) for _ in range(MAX)]
-  base += simulate([t11, t12],max_trials=100, no_found=100, init=init1, init_arg= d)
-print(base/count)
+# base = 0
+# count_pr = 0
+# count = 0
+# for _ in range(100):
+#   d = [random.randint(0, 10) for _ in range(MAX)]
+#   base += simulate([t11, t12],max_trials=100, no_found=100, init=init1, init_arg= d)
+# print(base/count)
 
 
