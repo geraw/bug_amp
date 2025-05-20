@@ -11,7 +11,7 @@ NOISE = 0.5
 in_critical_section = False
 
 def init_semaphore(d_args):
-    global semaphore_flag, d
+    global semaphore_flag, d, LOOP, MAX, NOISE, in_critical_section, END
     semaphore_flag = True
     LOOP = 100
     MAX = 5

@@ -11,7 +11,7 @@ in_critical_section = False
 d = []
 
 def init_dragon(d_args):
-    global d, in_critical_section
+    global d, in_critical_section, c1, c2, NOISE, MAX, LOOP, END
     c1 = 1
     c2 = 2
     in_critical_section = False

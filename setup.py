@@ -57,6 +57,7 @@ def generate_initial_examples():
         while y == 0:
             x = constants.rng.rand(constants.n_features*constants.N_PARALLEL) * constants.multip
             y = run_test(x)
+        print(f"{y=}")
             
         X = np.vstack([X, x])
         Y = np.append(Y, y)
@@ -229,7 +230,7 @@ def find_max_prob(n=1, D=None ):
     if D is None:
         X = constants.rng.rand(int((constants.cost*constants.N_TRAIN)/constants.B), constants.n_features*constants.N_PARALLEL) * constants.multip
     else:
-        X = get_n_random_items(D, int((cost*constants.N_TRAIN)/B))
+        X = get_n_random_items(D, int((2*cost*constants.N_TRAIN)/B))
     probs = [prob(x, max_trials=constants.B, no_found=constants.B) for x in X]
 
     # Get indices of top n probabilities

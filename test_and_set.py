@@ -11,13 +11,14 @@ MAX = 20
 NOISE = 0.7
 
 def init1(arg_d):
-    global x, d
+    global x, d, TARGET, LOOP, MAX, NOISE, c1
     x = X0            # TODO- to take from the argument list
     d = arg_d
     TARGET = 3                  # Value to compare with x
-    LOOP = 1
-    MAX = 20
-    NOISE = 0.5
+    LOOP = 3
+    MAX = 30
+    NOISE = 0.8
+    c1 = 1.1
 
 def t11():
   global x, d
@@ -25,15 +26,15 @@ def t11():
   for i in range(LOOP):
 
       # yield d[0]+0.5   # Simulate waiting time
-      yield 0.95*abs(d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE) )
+      yield c1*abs(d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE) )
 
       x=TARGET
 #      yield d[1]+0.5   # Simulate waiting time
-      yield 0.95*abs(d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
+      yield c1*abs(d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
 
       if x != TARGET:
           # yield d[2]+0.5   # Simulate waiting time
-          yield 0.95*abs(d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
+          yield c1*abs(d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
           assert (x!=TARGET)
   yield END
 

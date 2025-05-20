@@ -314,7 +314,7 @@ def run_classifier():
                     u_max, pr_max = using_next_point(D0, bounds=bounds, epsilon=multip/10,  k=MAX_TRIALS, iter=int((2*N_TRAIN*constants.cost)/MAX_TRIALS))
                     end_time = time.time()
                     pr_max = prob(u_max)
-                    print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/20} 'prob function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
+                    print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/10} 'prob function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
                     # print(f'{u_max=}')
                     storage[name][constants.cost]['SA']['best'] = pr_max
 

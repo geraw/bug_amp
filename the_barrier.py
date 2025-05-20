@@ -10,8 +10,9 @@ MAX = 30
 LOOP = 5
 NOISE = 3
 
+
 def init_fireball(d_args):
-    global fireballCharge, barrier_count, d
+    global fireballCharge, barrier_count, d, WAIT_LIMIT, MAX, LOOP, NOISE, END, c1, c2, c3
     fireballCharge = 0
     barrier_count = 0  # Acts as a synchronization barrier
     WAIT_LIMIT = 2      # Number of "threads" to wait before proceeding
@@ -20,7 +21,9 @@ def init_fireball(d_args):
     d = d_args
     NOISE = 3
     END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
-
+    c1 = 0.3
+    c2 = 1
+    c3 = 15
 
 def barrier_signal_and_wait(t):
     """ Simulates a barrier where all functions must reach before continuing. """
@@ -44,20 +47,20 @@ def thread_main():
 
     for _ in range(LOOP):
 
-        yield 1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         fireballCharge += 1
 
-        yield 1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         yield from barrier_signal_and_wait(0)
 
-        yield 1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
-        if fireballCharge < 2:
+        if fireballCharge < 1:
             assert False
 
-        yield 1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c1*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         yield from fireball(0)
     yield END
@@ -69,15 +72,15 @@ def thread_1():
 
     for _ in range(LOOP):
 
-        yield d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c2*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         fireballCharge += 1
 
-        yield d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c2*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         yield from barrier_signal_and_wait(0)
 
-        yield d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c2*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
     yield END
 
@@ -89,23 +92,23 @@ def thread_2():
 
     for _ in range(LOOP):
 
-        yield 15*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c3*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         fireballCharge += 1
 
-        yield 15*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c3*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         yield from barrier_signal_and_wait(0)
 
-        yield 15*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c3*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         yield from barrier_signal_and_wait(0)  # Extra wait
 
-        yield 15*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c3*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
         fireballCharge = 0  # Reset after firing
 
-        yield 15*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
+        yield c3*d[(i := ((i + 3) % MAX))] + random.uniform(-NOISE,NOISE)
 
     yield END
 

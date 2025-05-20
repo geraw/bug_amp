@@ -5,18 +5,18 @@ from simulate import simulate
 LOOP = 2
 MAX = 20
 END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
-NOISE = 1.5
+NOISE = 2.5
 k = 0  # Shared counter
 d = []
 
 def init_lock(d_args):
-    global d, k, LOOP, NOISE
-    LOOP = 3
+    global d, k, LOOP, NOISE, END, MAX
+    LOOP = 2
     k = 0
     MAX = 30
     d = [ d if i%2==0 else d*100 for (i,d) in enumerate(d_args)]
     k = 0  # Shared counter
-    NOISE = 1.4
+    NOISE = 2.5
     END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
 
 

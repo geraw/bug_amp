@@ -7,7 +7,7 @@ MAX   = 20
 NOISE = 1.5
 
 def initArmy(arg_d):
-  global flag, d, i, in_critical_section
+  global flag, d, i, in_critical_section, END, LOOP, MAX, NOISE
   d    = arg_d
   flag = False
   in_critical_section = False
