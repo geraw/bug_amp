@@ -32,9 +32,9 @@ rng = np.random.RandomState(random_state)
 # file_path = f'/content/drive/MyDrive/BugAmplofication2025/results/'
 file_path = f'reports/'
 
-NUM_TO_CHECK = 20
+NUM_TO_CHECK = 10
 NUM_OF_TESTS = 50          # number of tests for calculate the AVR and SDT of the methods
-N_TRAIN = 100                   # Number of random elements (increments) that the classifier is trained
+N_TRAIN = 1_000                   # Number of random elements (increments) that the classifier is trained
 N_PARALLEL =1
 
 # Access individual arguments

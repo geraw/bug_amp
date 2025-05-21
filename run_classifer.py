@@ -180,7 +180,7 @@ def run_classifier():
                     print("-----------------")
                     # m_correletion, s_correletion = compute_correlations(clf)
                     # correlation_history.append(s_correletion)
-                    print(f"Round {l} - {constants.cost}")
+                    print(f"Round {l} - {name} - {constants.cost}")
                     print("---------------------------\n\n")
 
 
