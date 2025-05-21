@@ -29,7 +29,7 @@ NOISE = 0.3
 LOOP = 3
 
 def init_queue(d_args):
-    global mutex, my_queue, d
+    global mutex, my_queue, d, MAX, LOOP, NOISE, END
     LOOP = 2
     NOISE = 1.5
     d=d_args
