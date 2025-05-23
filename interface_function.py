@@ -10,6 +10,8 @@ from the_barrier import init_fireball, thread_1, thread_2, thread_main
 from non_atomic_instructions import init_NonAtomic, thread0_NonAtomic, thread1_NonAtomic, thread2_NonAtomic
 from simple_counter_dragons import five_headed_dragon, three_headed_dragon, init_dragon
 from test_and_set import t11, t12, init1
+from general_peterson import peterson_custome1, peterson_custome2, peterson_custome3, peterson_custome4, init_peterson
+from deadlock import init_deadlock, dl_thread0, dl_thread1
 import setup
 import constants
 
@@ -57,10 +59,10 @@ def run_test_lock(X, max_trials=1, no_found=1):
     k = simulate([thread_lock_0, thread_lock_1], max_trials=max_trials, no_found=no_found, init=init_lock, init_arg=X)
     return k
 
-def run_test_bakery(X, max_trials=1, no_found=1):
+def run_test_peterson(X, max_trials=1, no_found=1):
     constants.count_pr = 0
     constants.count    = 0
-    k = simulate([customer1, customer2 ,customer3 ,customer4 ], max_trials=max_trials, no_found=no_found, init=init_bakery, init_arg=X)
+    k = simulate([peterson_custome1, peterson_custome2 ,peterson_custome3 ,peterson_custome4 ], max_trials=max_trials, no_found=no_found, init=init_peterson, init_arg=X)
     return k
 
 def run_test_non_atomic(X, max_trials=1, no_found=1):
@@ -81,4 +83,9 @@ def run_test_dragons(X, max_trials=1, no_found=1):
     k = simulate([five_headed_dragon, three_headed_dragon],max_trials=max_trials, no_found=no_found, init=init_dragon, init_arg= X)
     return k
 
+def run_test_deadlock(X, max_trials=1, no_found=1):
+    constants.count_pr = 0
+    constants.count    = 0
+    k = simulate([dl_thread0, dl_thread1 ],max_trials=max_trials, no_found=no_found, init=init_deadlock, init_arg= X)
 
+    return k

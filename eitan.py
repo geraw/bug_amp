@@ -76,3 +76,10 @@ def using_next_point(D0, epsilon=0.1, k=30, iter=1_000, bounds=constants.bounds)
       return max_u, max_pr
 
 
+# pip install nevergrad
+
+def objective_function(X):
+    # Call your existing logic here
+    result = setup.prob(X, max_trials=constants.B, no_found=constants.B)  # Example: Replace with your actual function
+    return result  # Negate if you want to maximize instead of minimize
+

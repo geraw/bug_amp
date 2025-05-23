@@ -20,6 +20,7 @@ from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 from imblearn.over_sampling import SMOTE
 from eitan import *
 from ga import *
+from scipy.optimize import basinhopping
 
 import constants
 from constants import *
@@ -110,7 +111,6 @@ def run_classifier():
 
             # for name, pr , m, n, lower_bound, upper_bound in probs:
             for name, run_test, prob , constants.multip, constants.n_features in constants.probs:
-                
                 single_run_test = run_test
                 set_run_test(run_test_parallel)
                 set_prob(prob)
@@ -318,6 +318,23 @@ def run_classifier():
                     # print(f'{u_max=}')
                     storage[name][constants.cost]['SA']['best'] = pr_max
 
+                    # start_time = time.time()
+                    
+                    # # Local optimizer (L-BFGS-B is efficient for smooth functions)
+                    # def local_minimizer(x):
+                    #     from scipy.optimize import minimize
+                    #     return minimize(objective_function, x, method="L-BFGS-B")
+
+                    # # Running Basin-hopping
+                    # my_prob = lambda x: 1-prob(x)  # Example function
+
+                    # result = basinhopping(my_prob, D0, minimizer_kwargs={"method": "L-BFGS-B", "bounds": bounds}, niter=int(cost*constants.N_TRAIN))
+                    # # Get the best point
+                    # end_time = time.time()
+                    # pr_max = prob(result.x)
+                    # print(f"\n\n\n\n\tScipy dual_annaeling convergens: The result for max prob using our method with budget={cost*constants.N_TRAIN}  result: {result.fun} {pr_max} runtime {(end_time - start_time):.2f}")
+                    # storage[name][constants.cost]['SA']['best'] = pr_max
+
 
                 #-------------------- GA -------------------------------
                     # count=0
@@ -385,34 +402,3 @@ if __name__ == "__main__":
 
 
 
-
-
-
-# pip install nevergrad
-
-# import nevergrad as ng
-
-# # Define the objective function
-# def objective_function(x):
-#     # Replace this with your actual logic
-#     # Example: minimize the square of x
-#     return x[0]**2 + x[1]**2
-
-# # Define the search space
-# parametrization = ng.p.Array(shape=(2,)).set_bounds(-10, 10)  # Example: 2D search space with bounds
-
-# # Create the Simulated Annealing optimizer
-# optimizer = ng.optimizers.SimulatedAnnealing(parametrization=parametrization, budget=100)
-
-# # Run the optimization
-# recommendation = optimizer.minimize(objective_function)
-
-# # Get the best point
-# best_point = recommendation.value
-# print(f"Best point: {best_point}")
-
-
-# def objective_function(X):
-#     # Call your existing logic here
-#     result = setup.run_test(X)  # Example: Replace with your actual function
-#     return -result  # Negate if you want to maximize instead of minimize
