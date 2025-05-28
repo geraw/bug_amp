@@ -52,7 +52,7 @@ storage = {
     } for case in csv_cases_name
 }
 
-csv_A_B_name = ['Ans', 'CL', 'BF', 'Diff', 'Rel']
+csv_A_B_name = ['Ans', 'CL', 'MLP', 'BF', 'Diff', 'Rel']
 csv_ab_title_line = []
 csv_ab_rows = []
 csv_ab_filename = f'{csv_file_path}{csv_ab_file_name}'
@@ -99,7 +99,7 @@ def run_classifier():
         for case in storage:
             for i in storage[case]:
                 for alg in storage[case][i]:
-                    if alg in ['Ans','Classifier', 'BF']:
+                    if alg in ['Ans','Classifier', 'MLP', 'BF']:
                         for val in csv_val_name:
                             csv_title_line.append(f'{case}_{i}k_{alg}_{val}')
                     else:
@@ -121,16 +121,17 @@ def run_classifier():
                 #                     random_state=random_state, max_iter=2000 )
                                     # random_state=random_state, max_iter=2000, alpha=0.0001 )
 
-                # clf = MLPClassifier(
-                #     hidden_layer_sizes=(50, 20),  # 2 hidden layers: 50 → 20 units
-                #     activation='relu',           # Good general-purpose activation
-                #     solver='adam',               # Robust optimizer, good for most tasks
-                #     alpha=1e-4,                  # L2 regularization to avoid overfitting
-                #     learning_rate='adaptive',    # Slows learning when not improving
-                #     max_iter=500,                # Allow time to converge
-                #     early_stopping=True,         # Automatically stop if no improvement
-                #     validation_fraction=0.1      # Use 10% of train set for early stopping
-                # )
+                mlpclf = MLPClassifier(
+                    hidden_layer_sizes=(50, 20),  # 2 hidden layers: 50 → 20 units
+                    activation='relu',           # Good general-purpose activation
+                    solver='adam',               # Robust optimizer, good for most tasks
+                    alpha=1e-4,                  # L2 regularization to avoid overfitting
+                    learning_rate='adaptive',    # Slows learning when not improving
+                    max_iter=500,                # Allow time to converge
+                    early_stopping=True,         # Automatically stop if no improvement
+                    validation_fraction=0.1      # Use 10% of train set for early stopping
+                )
+
 
                 # clf = CalibratedClassifierCV(clf, method='isotonic')
 
@@ -160,6 +161,8 @@ def run_classifier():
                 X_accumulated_clf, y_accumulated_clf = generate_initial_examples()
                 X_accumulated_sm = X_accumulated_clf
                 y_accumulated_sm = y_accumulated_clf
+                X_accumulated_mlp = X_accumulated_clf
+                y_accumulated_mlp = y_accumulated_clf
                 
                 # print (f"Initial data: {len(X_accumulated_clf)=} {len(y_accumulated_clf)=} {len(X_accumulated_sm)=} {len(y_accumulated_sm)=}")
 
@@ -295,6 +298,53 @@ def run_classifier():
                     print(f'\t5th best Classifier - {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')
                     print(f'\t10th best Classifier - {sorted_max_real[9] if len(sorted_max_real) > 9 else None}')
 
+                    #-------------------- MLP - Classifier -------------------------------
+        
+                    X_accumulated_mlp, y_accumulated_mlp = accumulate_data(mlpclf, X_accumulated_mlp, y_accumulated_mlp)
+                    # print (f"CL data: {len(X_accumulated_clf)=} {len(y_accumulated_clf)=} {len(X_accumulated_sm)=} {len(y_accumulated_sm)=}")
+
+                    # Check class distribution
+                    unique, counts = np.unique(y_accumulated_mlp, return_counts=True)
+                    print(f'mlp {dict(zip(unique, counts))=}')  # e.g., {0: 4500, 1: 500}
+                    X_train, X_test, y_train, y_test = train_test_split(X_accumulated_mlp, y_accumulated_mlp, stratify=y_accumulated_mlp, test_size=0.01, random_state=42)
+
+                    smote = SMOTE(random_state=42)
+                    X_train_bal, y_train_bal = smote.fit_resample(X_train, y_train)
+
+                    print(f"After SMOTE:, {dict(zip(*np.unique(y_train_bal, return_counts=True)))}")
+                    
+                    mlpclf = train(mlpclf, X_train_bal, y_train_bal)
+                    # _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(clf, 15)
+                    # # sorted_max_real = sorted(top_reals, reverse=True)
+                    # print(f'\n')
+                    # print(f'\tBest Classifier balanced - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')
+                    # print(f'\t5th best Classifier balanced - {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')
+                    # print(f'\t10th best Classifier balanced - {sorted_max_real[9] if len(sorted_max_real) > 9 else None}')
+
+                    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                    file_name = f'{file_path}modle_{timestamp}_{constants.cost}_{name}_{file_data}'
+
+                    # # Save the trained model
+                    # with open(file_name, 'wb') as file:
+                    #     pickle.dump(clf, file)
+                    # clf = train(clf, X_accumulated_clf, y_accumulated_clf)
+
+                    # _, _, sorted_max_real, max_real_classifier, X =  find_max_predicted_prob(clf, 15)
+                    predicted_probs_mlp = mlpclf.predict_proba(X_accumulated_mlp)[:, 1]
+                    top_n_indices_mlp = np.argsort(predicted_probs_mlp)[-15:]
+                    top_vectors_mlp = [X_accumulated_mlp[i] for i in top_n_indices_mlp]
+                    # top_probs = [predicted_probs[i] for i in top_n_indices]
+                    top_reals_mlp = [prob(x) for x in top_vectors_mlp]
+
+                    mlp_sorted_max_real = sorted(top_reals_mlp, reverse=True)
+
+                    # sorted_max_real = sorted(top_reals, reverse=True)
+                    print(f'\n')
+                    print(f'\tBest MLP Classifier - {mlp_sorted_max_real[0] if len(mlp_sorted_max_real) > 0 else None}')
+                    print(f'\t5th best MLP Classifier - {mlp_sorted_max_real[4] if len(mlp_sorted_max_real) > 4 else None}')
+                    print(f'\t10th best MLP Classifier - {mlp_sorted_max_real[9] if len(mlp_sorted_max_real) > 9 else None}')
+
+
 
                 #-------------------- BF - Brout Force -------------------------------
 
@@ -360,6 +410,10 @@ def run_classifier():
                     storage[name][constants.cost]['Classifier']['5th'] = sorted_max_real[4] if len(sorted_max_real) > 4 else None
                     storage[name][constants.cost]['Classifier']['10th'] = sorted_max_real[9] if len(sorted_max_real) > 9 else None
 
+                    storage[name][constants.cost]['MLP']['best'] = mlp_sorted_max_real[0] if len(mlp_sorted_max_real) > 0 else None
+                    storage[name][constants.cost]['MLP']['5th'] = mlp_sorted_max_real[4] if len(mlp_sorted_max_real) > 4 else None
+                    storage[name][constants.cost]['MLP']['10th'] = mlp_sorted_max_real[9] if len(mlp_sorted_max_real) > 9 else None
+
                     storage[name][constants.cost]['BF']['best'] = top_probs[0] if len(top_probs) > 0 else None
                     storage[name][constants.cost]['BF']['5th'] = top_probs[4] if len(top_probs) > 4 else None
                     storage[name][constants.cost]['BF']['10th'] = top_probs[9] if len(top_probs) > 9 else None
@@ -375,7 +429,7 @@ def run_classifier():
             for case in csv_cases_name:
                 for i in range(1, NUM_TO_CHECK + 1):
                     for alg in csv_alg_name:
-                        if alg in ['Ans', 'Classifier', 'BF']:  # Include 'best', '5th', '10th' for classifier & BF
+                        if alg in ['Ans', 'Classifier', 'MLP', 'BF']:  # Include 'best', '5th', '10th' for classifier & BF
                             for val in csv_val_name:  # csv_val_name = ['best', '5th', '10th']
                                 csv_row.append(storage[case][i][alg][val])
                         else:  # Only 'best' for other algorithms
