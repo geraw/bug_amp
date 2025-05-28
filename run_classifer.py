@@ -30,7 +30,7 @@ import time
 
 
 single_run_test = None
-csv_alg_name = ['Ans','Classifier', 'BF', 'SA', 'GA']
+csv_alg_name = ['Ans','Classifier', 'MLP', 'BF', 'SA', 'GA']
 csv_title_line = []
 csv_val_name = ['best', '5th', '10th']  # Values to store for each algorithm
 csv_rows = []
