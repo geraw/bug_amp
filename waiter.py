@@ -19,8 +19,8 @@ def init_waiter(d_args):
     waiting_threads = set()
     d = d_args
     c1 = 1
-    c2 = 50
-    c3 = 0.1
+    c2 = 100
+    c3 = 0.05
     i = 0
     MAX = 30
     LOOP = 10

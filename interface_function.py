@@ -13,6 +13,9 @@ from test_and_set import t11, t12, init1
 from general_peterson import peterson_custome1, peterson_custome2, peterson_custome3, peterson_custome4, init_peterson
 from deadlock import init_deadlock, dl_thread0, dl_thread1
 from waiter import init_waiter, waiter, signaler
+from race import init_race_to_wait, race_to_wait_thread_1, race_to_wait_thread_2
+from signalAndWait import init_signal_then_wait, signal_then_wait_thread_0, signal_then_wait_thread_1
+from sleepingGuard import init_sleeping_guard, sleeping_guard_consumer, sleeping_guard_producer
 import setup
 import constants
 
@@ -95,5 +98,26 @@ def run_test_waiter(X, max_trials=1, no_found=1):
     constants.count_pr = 0
     constants.count    = 0
     k = simulate([waiter, signaler],max_trials=max_trials, no_found=no_found, init=init_waiter, init_arg= X)
+
+    return k
+def run_test_race(X, max_trials=1, no_found=1):
+    global count, count_pr
+    count_pr = 0
+    count    = 0
+    k = simulate([race_to_wait_thread_1, race_to_wait_thread_2],max_trials=max_trials, no_found=no_found, init=init_race_to_wait, init_arg= X)
+
+    return k
+def run_test_signal(X, max_trials=1, no_found=1):
+    global count, count_pr
+    count_pr = 0
+    count    = 0
+    k = simulate([signal_then_wait_thread_0, signal_then_wait_thread_1],max_trials=max_trials, no_found=no_found, init=init_signal_then_wait, init_arg= X)
+    return k
+
+def run_test_sleeping(X, max_trials=1, no_found=1):
+    global count, count_pr
+    count_pr = 0
+    count    = 0
+    k = simulate([sleeping_guard_consumer, sleeping_guard_producer],max_trials=max_trials, no_found=no_found, init=init_sleeping_guard, init_arg= X)
 
     return k

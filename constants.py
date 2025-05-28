@@ -2,7 +2,8 @@ import numpy as np
 import sys
 import random
 
-from interface_function import prob_our, run_test_complex, run_test_dragons, run_test_lock, run_test_semaphore, run_test_berrier, run_test_condition, run_test_boolean, run_test_our, run_test_non_atomic, run_test_peterson, run_test_deadlock, run_test_waiter
+from interface_function import *
+
 M_CORRELETION_THRESHOLD = 0.10    # Magalit correlation thrashhold
 S_CORRELETION_THRESHOLD = 0.20    # Spearman correlation threshhold
 n_informative = 7
@@ -64,6 +65,9 @@ probs = [
 # ('peterson', lambda x, **kwargs: (run_test_peterson(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 # ('deadlock', lambda x, **kwargs: (run_test_deadlock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 ('waiter', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+('race', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+('sleeping', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
 
 ]
 
