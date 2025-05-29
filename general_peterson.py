@@ -22,19 +22,20 @@ def init_peterson(d_args):
     NUM_CUSTOMERS = 4
     levels = [0] * NUM_CUSTOMERS
     last_to_enter = [None] * (NUM_CUSTOMERS - 1)
-    LOOP =10
+    LOOP =200
     MAX = 30
     END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
-    NOISE = 1.5
+    NOISE = 2.5
     d = d_args
     in_peterson_critical_section = False
     c1 = 1
-    c2 = 15
-    c3 = 6
-    c4 = 4
-    cc1 = 1
-    cc2 = 1
+    c2 = 2
+    c3 = 4
+    c4 = 8
+    cc1 = 3
+    cc2 = 0.8
     
+   
 #in_critical_section = False
 def peterson_critical_section(t):
   global in_peterson_critical_section
