@@ -16,6 +16,7 @@ from waiter import init_waiter, waiter, signaler
 from race import init_race_to_wait, race_to_wait_thread_1, race_to_wait_thread_2
 from signalAndWait import init_signal_then_wait, signal_then_wait_thread_0, signal_then_wait_thread_1
 from sleepingGuard import init_sleeping_guard, sleeping_guard_consumer, sleeping_guard_producer
+from phantom_permit import init_phantom_permit, phantom_permit_thread_0, phantom_permit_thread_1
 import setup
 import constants
 
@@ -119,5 +120,12 @@ def run_test_sleeping(X, max_trials=1, no_found=1):
     count_pr = 0
     count    = 0
     k = simulate([sleeping_guard_consumer, sleeping_guard_producer],max_trials=max_trials, no_found=no_found, init=init_sleeping_guard, init_arg= X)
+
+    return k
+def run_test_permit(X, max_trials=1, no_found=1):
+    global count, count_pr
+    count_pr = 0
+    count    = 0
+    k = simulate([phantom_permit_thread_0, phantom_permit_thread_1],max_trials=max_trials, no_found=no_found, init=init_phantom_permit, init_arg= X)
 
     return k

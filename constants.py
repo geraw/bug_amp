@@ -53,21 +53,22 @@ csv_ab_file_name = f'results_ab_{res_ver}.csv'
 
 file_data = f'{M_CORRELETION_THRESHOLD}_{S_CORRELETION_THRESHOLD}_{random_state}_clf_model.pkl'  # Replace with your desired path
 probs = [
-('Non_atomic', lambda x, **kwargs: (run_test_non_atomic(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)),10, 30),
-('testNset', lambda x, **kwargs: (run_test_our(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)),2, 20),
-('boolean', lambda x, **kwargs: (run_test_boolean(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10,30),
-('condition', lambda x, **kwargs: (run_test_condition(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('Barrier', lambda x, **kwargs: (run_test_berrier(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('semaphore', lambda x, **kwargs: (run_test_semaphore(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('lock', lambda x, **kwargs: (run_test_lock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('complex', lambda x, **kwargs: (run_test_complex(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('dragons', lambda x, **kwargs: (run_test_dragons(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('peterson', lambda x, **kwargs: (run_test_peterson(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('Non_atomic', lambda x, **kwargs: (run_test_non_atomic(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)),10, 30),
+# ('testNset', lambda x, **kwargs: (run_test_our(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)),2, 20),
+# ('boolean', lambda x, **kwargs: (run_test_boolean(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10,30),
+# ('condition', lambda x, **kwargs: (run_test_condition(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('Barrier', lambda x, **kwargs: (run_test_berrier(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('semaphore', lambda x, **kwargs: (run_test_semaphore(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('lock', lambda x, **kwargs: (run_test_lock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('complex', lambda x, **kwargs: (run_test_complex(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('dragons', lambda x, **kwargs: (run_test_dragons(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('peterson', lambda x, **kwargs: (run_test_peterson(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 ('deadlock', lambda x, **kwargs: (run_test_deadlock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('waiter', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('race', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
-('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
-('sleeping', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+# ('waiter', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('race', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+# ('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+# ('sleeping', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+# ('phantom_permit', lambda x, **kwargs: (run_test_permit(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 
 ]
 
