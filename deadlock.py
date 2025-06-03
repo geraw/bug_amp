@@ -21,7 +21,7 @@ def init_deadlock(d_args):
     global d, k, LOOP, NOISE, END, MAX, in_dl_critical_section, c1, c2, dl_mutex1, dl_mutex2, timeout_deadlock, dl_count
     dl_mutex1 = 0  # 0: unlocked, 1: locked
     dl_mutex2 = 0  # 0: unlocked, 1: locked
-    timeout_deadlock =30_000
+    timeout_deadlock =30000
     LOOP =1
     MAX = 30
     END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
@@ -29,7 +29,7 @@ def init_deadlock(d_args):
     d = d_args
     in_dl_critical_section = False
     c1 = 1
-    c2 = 3000
+    c2 = 1.1
     dl_count = 250 
     
 
@@ -46,8 +46,8 @@ def dl_thread0():
         # Acquire mutex1
         dl_count = 0
         while dl_mutex1 == 1:
-            # yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
-            yield 0.01
+            yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            # yield 0.01
             dl_count += 1
             if dl_count > timeout_deadlock:
                 assert False
@@ -57,8 +57,8 @@ def dl_thread0():
         # Acquire mutex2
         dl_count = 0
         while dl_mutex2 == 1:
-            yield 0.01
-            # yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            # yield 0.01
+            yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
             dl_count += 1
             if dl_count > timeout_deadlock:
                 assert False
@@ -83,8 +83,8 @@ def dl_thread1():
         # Acquire mutex2
         dl_count = 0
         while dl_mutex2 == 1:
-            # yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
-            yield 0.01
+            yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            # yield 0.01
             dl_count += 1
             if dl_count > timeout_deadlock:
                 raise AssertionError("[Thread 1] DEADLOCK: timeout acquiring mutex2")
@@ -94,8 +94,8 @@ def dl_thread1():
         # Acquire mutex1
         dl_count = 0
         while dl_mutex1 == 1:
-            # yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
-            yield 0.01
+            yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            # yield 0.01
             dl_count += 1
             if dl_count > timeout_deadlock:
                 raise AssertionError("[Thread 1] DEADLOCK: timeout acquiring mutex1")
