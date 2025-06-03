@@ -245,8 +245,8 @@ def run_classifier():
 
                     sm_sorted_max_real = sorted(top_reals, reverse=True)
 
-                    if sm_sorted_max_real[0] in X_accumulated_sm[:6]:
-                        print(f"\t\tSM Found best in initial examples: {sm_sorted_max_real[0]} in {X_accumulated_sm[:6]}")
+                    if top_vectors[0] in X_accumulated_sm[:6]:
+                        print(f"\t\tSM Found best in initial examples: {top_vectors[0]} in {X_accumulated_sm[:6]}")
 
                     # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
@@ -295,10 +295,9 @@ def run_classifier():
 
                     sorted_max_real = sorted(top_reals_clf, reverse=True)
 
-                    if sorted_max_real[0] in X_accumulated_clf[:6]:
-                        print(f"\t\tCLF Found best in initial examples: {sorted_max_real[0]} in {X_accumulated_clf[:6]}")
-
-                    # sorted_max_real = sorted(top_reals, reverse=True)
+                    if top_vectors_clf[0] in X_accumulated_clf[:6]:
+                        print(f"\t\tCLF Found best in initial examples: {top_vectors_clf[0]} in {X_accumulated_clf[:6]}")
+                    
                     print(f'\n')
                     print(f'\tBest Classifier - {sorted_max_real[0] if len(sorted_max_real) > 0 else None}')
                     print(f'\t5th best Classifier - {sorted_max_real[4] if len(sorted_max_real) > 4 else None}')

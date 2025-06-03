@@ -21,21 +21,24 @@ def init_deadlock(d_args):
     global d, k, LOOP, NOISE, END, MAX, in_dl_critical_section, c1, c2, dl_mutex1, dl_mutex2, timeout_deadlock, dl_count
     dl_mutex1 = 0  # 0: unlocked, 1: locked
     dl_mutex2 = 0  # 0: unlocked, 1: locked
-    timeout_deadlock =30000
+    timeout_deadlock =500
     LOOP =1
-    MAX = 30
+    MAX = 50
     END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
-    NOISE = 1.5
+    NOISE = 2.5
     d = d_args
     in_dl_critical_section = False
     c1 = 1
-    c2 = 1.1
-    dl_count = 250 
+    c2 = 40
+    dl_count = 0 
+    logg(f"Deadlock test initialized with parameters: dl_mutex1={dl_mutex1}, dl_mutex2={dl_mutex2}")
     
-
+def logg(msg):
+    # print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {msg}")
+    pass
 # Define the critical section
 def dl_critical_section(thread_id):
-    print(f"Thread {thread_id} entered critical section")
+    logg(f"Thread {thread_id} entered critical section")
     yield 0.5  # Simulate some operation
 
 # Define Thread 0's behavior
@@ -43,10 +46,13 @@ def dl_thread0():
     global dl_mutex1, dl_mutex2, c1, d, timeout_deadlock
     i = -1
     for _ in range(LOOP):
+        yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         # Acquire mutex1
         dl_count = 0
         while dl_mutex1 == 1:
-            yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            if dl_count % 5 == 0:
+                logg(f"Thread 0 waiting for mutex1, count: {dl_count}")
+                yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
             # yield 0.01
             dl_count += 1
             if dl_count > timeout_deadlock:
@@ -57,8 +63,9 @@ def dl_thread0():
         # Acquire mutex2
         dl_count = 0
         while dl_mutex2 == 1:
-            # yield 0.01
-            yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            if dl_count % 10 == 0:
+                logg(f"Thread 0 waiting for mutex2, count: {dl_count}")
+                yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
             dl_count += 1
             if dl_count > timeout_deadlock:
                 assert False
@@ -81,24 +88,29 @@ def dl_thread1():
     i = -2
     for _ in range(LOOP):
         # Acquire mutex2
+        yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         dl_count = 0
         while dl_mutex2 == 1:
-            yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            if dl_count % 10 == 0:
+                logg(f"Thread 1 waiting for mutex2, count: {dl_count}")
+                yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
             # yield 0.01
             dl_count += 1
             if dl_count > timeout_deadlock:
-                raise AssertionError("[Thread 1] DEADLOCK: timeout acquiring mutex2")
+                assert False
         dl_mutex2 = 1
         yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
 
         # Acquire mutex1
         dl_count = 0
         while dl_mutex1 == 1:
-            yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            if dl_count % 10 == 0:
+                logg(f"Thread 1 waiting for mutex1, count: {dl_count}")
+                yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
             # yield 0.01
             dl_count += 1
             if dl_count > timeout_deadlock:
-                raise AssertionError("[Thread 1] DEADLOCK: timeout acquiring mutex1")
+                assert False
         dl_mutex1 = 1
         yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
 

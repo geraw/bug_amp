@@ -8,7 +8,7 @@ M_CORRELETION_THRESHOLD = 0.10    # Magalit correlation thrashhold
 S_CORRELETION_THRESHOLD = 0.20    # Spearman correlation threshhold
 n_informative = 7
 probability_factor = 1
-n_features = 30
+n_features = 50
 cost = 0
 N_TEST = 1_000                     # Number of random elements for test the coore;etion
 count = 0
@@ -63,7 +63,7 @@ probs = [
 # ('complex', lambda x, **kwargs: (run_test_complex(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 # ('dragons', lambda x, **kwargs: (run_test_dragons(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 # ('peterson', lambda x, **kwargs: (run_test_peterson(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-('deadlock', lambda x, **kwargs: (run_test_deadlock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+('deadlock', lambda x, **kwargs: (run_test_deadlock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 50),
 # ('waiter', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 # ('race', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
 # ('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
