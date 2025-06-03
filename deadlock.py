@@ -29,7 +29,7 @@ def init_deadlock(d_args):
     d = d_args
     in_dl_critical_section = False
     c1 = 1
-    c2 = 3000
+    c2 = 0.5
     dl_count = 250 
     
 

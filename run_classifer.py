@@ -212,9 +212,9 @@ def run_classifier():
                     bug_probs = probs[:, 1]
                     predicted_probs = stacked_model.predict_proba(X_accumulated_sm)[:, 1]
 
-                    top_buggy_indices = np.argsort(predicted_probs)[::-1][:5]
-                    for i in top_buggy_indices:
-                        print(f"Input: {X_accumulated_sm[i]}, score X ({prob(X_accumulated_sm[i]):.4f})")  
+                    # top_buggy_indices = np.argsort(predicted_probs)[::-1][:5]
+                    # for i in top_buggy_indices:
+                    #     print(f"Input: {X_accumulated_sm[i]}, score X ({prob(X_accumulated_sm[i]):.4f})")  
 
 
                     
@@ -241,9 +241,12 @@ def run_classifier():
                     top_n_indices = np.argsort(predicted_probs)[-15:]
                     top_vectors = [X_accumulated_sm[i] for i in top_n_indices]
                     # top_probs = [predicted_probs[i] for i in top_n_indices]
-                    top_reals = [prob(x) for x in top_vectors]
+                    top_reals = [prob(x, max_trials=1000, no_found=1000) for x in top_vectors]
 
                     sm_sorted_max_real = sorted(top_reals, reverse=True)
+
+                    if sm_sorted_max_real[0] in X_accumulated_sm[:6]:
+                        print(f"\t\tSM Found best in initial examples: {sm_sorted_max_real[0]} in {X_accumulated_sm[:6]}")
 
                     # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
@@ -288,9 +291,12 @@ def run_classifier():
                     top_n_indices_clf = np.argsort(predicted_probs_clf)[-15:]
                     top_vectors_clf = [X_accumulated_clf[i] for i in top_n_indices_clf]
                     # top_probs = [predicted_probs[i] for i in top_n_indices]
-                    top_reals_clf = [prob(x) for x in top_vectors_clf]
+                    top_reals_clf = [prob(x, max_trials=1000, no_found=1000) for x in top_vectors_clf]
 
                     sorted_max_real = sorted(top_reals_clf, reverse=True)
+
+                    if sorted_max_real[0] in X_accumulated_clf[:6]:
+                        print(f"\t\tCLF Found best in initial examples: {sorted_max_real[0]} in {X_accumulated_clf[:6]}")
 
                     # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
@@ -334,11 +340,13 @@ def run_classifier():
                     top_n_indices_mlp = np.argsort(predicted_probs_mlp)[-15:]
                     top_vectors_mlp = [X_accumulated_mlp[i] for i in top_n_indices_mlp]
                     # top_probs = [predicted_probs[i] for i in top_n_indices]
-                    top_reals_mlp = [prob(x) for x in top_vectors_mlp]
+                    top_reals_mlp = [prob(x, max_trials=1000, no_found=1000) for x in top_vectors_mlp]
 
                     mlp_sorted_max_real = sorted(top_reals_mlp, reverse=True)
 
-                    # sorted_max_real = sorted(top_reals, reverse=True)
+                    if mlp_sorted_max_real[0] in X_accumulated_mlp[:6]:
+                        print(f"MLP Found best in initial examples: {mlp_sorted_max_real[0]} in {X_accumulated_mlp[:6]}")
+                   # sorted_max_real = sorted(top_reals, reverse=True)
                     print(f'\n')
                     print(f'\tBest MLP Classifier - {mlp_sorted_max_real[0] if len(mlp_sorted_max_real) > 0 else None}')
                     print(f'\t5th best MLP Classifier - {mlp_sorted_max_real[4] if len(mlp_sorted_max_real) > 4 else None}')
@@ -363,7 +371,7 @@ def run_classifier():
                     start_time = time.time()
                     u_max, pr_max = using_next_point(D0, bounds=bounds, epsilon=multip/10,  k=MAX_TRIALS, iter=int((2*N_TRAIN*constants.cost)/MAX_TRIALS))
                     end_time = time.time()
-                    pr_max = prob(u_max)
+                    pr_max = prob(u_max, max_trials=1000, no_found=1000)
                     print(f"\n\n\n\tEitan's convergens: The result for max prob using our method with box of {multip/10} 'prob function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
                     # print(f'{u_max=}')
                     storage[name][constants.cost]['SA']['best'] = pr_max
@@ -393,7 +401,7 @@ def run_classifier():
                     # u_max, pr_max = run_ga(pop_size=max(int(sqrt(NO_FOUND)),15), max_gen=int(ITER/5), bounds=bounds)
                     u_max, pr_max = run_ga(pop_size=50, max_gen=int((2*N_TRAIN*constants.cost)/50), bounds=bounds)
                     end_time = time.time()
-                    pr_max = prob(u_max)
+                    pr_max = prob(u_max, max_trials=1000, no_found=1000)
                     print(f"\n\tGenetic Algoritm: The result for max prob using GA method 'pr function' {N_TRAIN*constants.cost} and # runs {count} tests: {pr_max} runtime {(end_time - start_time):.2f}")
                     # storage[name][constants.cost]['GA']['best'] = 0
                     storage[name][constants.cost]['GA']['best'] = pr_max

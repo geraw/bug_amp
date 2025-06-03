@@ -237,7 +237,9 @@ def find_max_prob(n=1, D=None ):
     top_n_indices = np.argsort(probs)[-n:][::-1]  # Reverse order
 
     top_vectors = [X[i] for i in top_n_indices]
-    top_probs = [probs[i] for i in top_n_indices]
+    top_probs = [prob(x, max_trials=1000, no_found=1000) for x in top_vectors]
+
+    # top_probs = [probs[i] for i in top_n_indices]
 
     # Calculate average and std
     avg_prob = np.mean(top_probs)
