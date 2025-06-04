@@ -24,8 +24,8 @@ def init_phantom_permit(d_args):
     END = 10_000_000
     d = d_args
     c1 = 1
-    c2 = 6
-    LOOP = 3
+    c2 = 10 # 6
+    LOOP = 4
     in_critical_section = False
 
 def critical_section_permit(t):
