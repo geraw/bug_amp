@@ -23,10 +23,12 @@ def init_phantom_permit(d_args):
     NOISE = 2
     END = 10_000_000
     d = d_args
-    c1 = 1
-    c2 = 10 # 6
-    LOOP = 4
+    c1 = 30
+    c2 = 3 # 6
+    LOOP = 2
     in_critical_section = False
+
+
 
 def critical_section_permit(t):
     global in_critical_section
@@ -35,7 +37,7 @@ def critical_section_permit(t):
     assert not in_critical_section
 
     in_critical_section = True
-    yield 0.3              # Simulate some processing time
+    yield 1              # Simulate some processing time
     in_critical_section = False
 
 

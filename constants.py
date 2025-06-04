@@ -67,8 +67,8 @@ probs = [
 # ('waiter', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 # ('race', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
 # ('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
-('sleeping', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-# ('phantom_permit', lambda x, **kwargs: (run_test_permit(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+# ('sleeping', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+('phantom_permit', lambda x, **kwargs: (run_test_permit(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
 
 ]
 
