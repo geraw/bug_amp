@@ -11,9 +11,10 @@ d = []
 MAX = 30
 NOISE = 1.5
 END = 10_000_000
+sleep_timeout = 0
 
 def init_sleeping_guard(d_args):
-    global queue, waiting, d, MAX, NOISE, END, LOOP, c1, c2
+    global queue, waiting, d, MAX, NOISE, END, LOOP, c1, c2, sleep_timeout
     queue = []
     global d
     queue = []
@@ -21,37 +22,46 @@ def init_sleeping_guard(d_args):
     d = d_args
     MAX = 30
     NOISE = 1.5
-    c1 = 2
-    c2 = 1
-    LOOP = 3
+    c1 = 4    # Consumer is very slow (higher chance to sleep too late)
+    c2 = 0.4  # Producer is very fast (can sneak in and notify too early)
+    LOOP = 10
     END = 10_000_000
+    sleep_timeout = 500
 
 def sleeping_guard_consumer():
     global queue, waiting, d
     i = -2
     for _ in range(LOOP):
         if not queue:
+            yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
             waiting = True
-            yield abs(c1*d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
-            while waiting:  # BUG: not rechecking actual queue state
-                # print("Consumer waiting (flag = True)...")
-                yield abs(c1*d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
+            yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+
+            timeout = 0
+            while waiting:
+                yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+                timeout += 1
+                if timeout > sleep_timeout:
+                    assert False
+                    
         assert len(queue) > 0
+        yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         item = queue.pop(0)
-        # print("Consumed:", item)
-        yield abs(c1*d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
+        yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
     yield END
+
 
 def sleeping_guard_producer():
     global queue, waiting, d
     i = -1
     for _ in range(LOOP):
+        yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         queue.append("item")
-        # print("Produced: item")
-        yield abs(c2*d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
+        yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         if waiting:
-            waiting = False  # Notifies waiting thread
-        yield abs(c2*d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE,NOISE))
+            yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
+            waiting = False
+        yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
     yield END
 
 # count_pr = 0
