@@ -1,14 +1,4 @@
 import random
-
-flag = False
-mutex = 0  # simulate lock
-wait_blocked = False
-timeout = 1000
-MAX = 30
-NOISE = 1.5
-d = []
-
-
 def init_signal_then_wait(d_args):
     global flag, mutex, wait_blocked, timeout, MAX, NOISE, d, LOOP, END, c1, c2
     LOOP = 1
@@ -20,21 +10,21 @@ def init_signal_then_wait(d_args):
     NOISE = 2.5
     d = d_args
     c1 = 1
-    c2 = 4
+    c2 = 3.1 # 3.3
     END = 10_000_000  # A big number to signify the end of a thread, i.e, say that its next wake time is infinity
 
 def logg(x):
-  # print (x)
-  pass  
+#   print (x)
+  pass
 
 def signal_then_wait_thread_0():
     global flag, wait_blocked, mutex, d
     i = -2
-   
+
     for _ in range(LOOP):
         yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))  # simulate small delay
         logg(f'Tread 0 start')
-        while mutex: 
+        while mutex:
             yield abs(c1 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         # acquire lock
         mutex = 1
@@ -66,7 +56,7 @@ def signal_then_wait_thread_1():
         logg("Thread 1 set flag = true")
         yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
         # yield 0.01
-        while mutex: 
+        while mutex:
             yield 0.01
 
         # yield abs(c2 * d[(i := ((i + 2) % MAX))] + random.uniform(-NOISE, NOISE))
