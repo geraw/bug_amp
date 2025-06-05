@@ -17,6 +17,7 @@ from race import init_race_to_wait, race_to_wait_thread_1, race_to_wait_thread_2
 from signalAndWait import init_signal_then_wait, signal_then_wait_thread_0, signal_then_wait_thread_1
 from sleepingGuard import init_sleeping_guard, sleeping_guard_consumer, sleeping_guard_producer
 from phantom_permit import init_phantom_permit, phantom_permit_thread_0, phantom_permit_thread_1
+from bypass import init_atomicity_bypass, atomicity_thread_a, atomicity_thread_b
 import setup
 import constants
 
@@ -92,22 +93,21 @@ def run_test_deadlock(X, max_trials=1, no_found=1):
     constants.count_pr = 0
     constants.count    = 0
     k = simulate([dl_thread0, dl_thread1 ],max_trials=max_trials, no_found=no_found, init=init_deadlock, init_arg= X)
-
     return k
 
 def run_test_waiter(X, max_trials=1, no_found=1):
     constants.count_pr = 0
     constants.count    = 0
     k = simulate([waiter, signaler],max_trials=max_trials, no_found=no_found, init=init_waiter, init_arg= X)
-
     return k
+
 def run_test_race(X, max_trials=1, no_found=1):
     global count, count_pr
     count_pr = 0
     count    = 0
     k = simulate([race_to_wait_thread_1, race_to_wait_thread_2],max_trials=max_trials, no_found=no_found, init=init_race_to_wait, init_arg= X)
-
     return k
+
 def run_test_signal(X, max_trials=1, no_found=1):
     global count, count_pr
     count_pr = 0
@@ -120,12 +120,18 @@ def run_test_sleeping(X, max_trials=1, no_found=1):
     count_pr = 0
     count    = 0
     k = simulate([sleeping_guard_consumer, sleeping_guard_producer],max_trials=max_trials, no_found=no_found, init=init_sleeping_guard, init_arg= X)
-
     return k
+
 def run_test_permit(X, max_trials=1, no_found=1):
     global count, count_pr
     count_pr = 0
     count    = 0
     k = simulate([phantom_permit_thread_0, phantom_permit_thread_1],max_trials=max_trials, no_found=no_found, init=init_phantom_permit, init_arg= X)
+    return k
 
+def run_test_bypass(X, max_trials=1, no_found=1):
+    global count, count_pr
+    count_pr = 0
+    count    = 0
+    k = simulate([atomicity_thread_a, atomicity_thread_b],max_trials=max_trials, no_found=no_found, init=init_atomicity_bypass, init_arg= X)
     return k
