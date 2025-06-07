@@ -117,24 +117,6 @@ def generate_latex(x, ys, yerrs, series_labels, tex_path):
         body += f"\\addlegendentry{{{escaped_label}}}\n\n"
 
     
-    
-    
-    # for i, label in enumerate(series_labels):
-    #     body += "\\addplot+[error bars/.cd, y dir=both, y explicit] coordinates {\n"
-    #     for xi, yi, ei in zip(x, ys[i], yerrs[i]):
-    #         # body += f"({{xi}}, {{yi}}) +- (0, {{ei}})\n".format(xi=xi, yi=yi, ei=ei)
-    #         yi = min(1.0, max(0.0, yi))
-    #         lower = max(0.0, yi - ei)
-    #         upper = min(1.0, yi + ei)
-    #         ei_clipped = upper - yi if upper - yi >= yi - lower else yi - lower
-    #         body += f"({xi}, {yi}) +- (0, {ei_clipped})\n"
-
-    #     body += "};\n"          
-    #     # body += f"\\addlegendentry{{{{{label}}}}}\n"
-    #     escaped_label = latex_escape(label)
-    #     body += f"\\addlegendentry{{{escaped_label}}}\n"
-
-
     footer = r"""\end{axis}
     \end{tikzpicture}
     \end{document}
