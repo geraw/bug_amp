@@ -1,66 +1,72 @@
 import os
+import argparse
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import argparse
+from matplotlib import cm
 
-def generate_method_graphs(directory, num_test_cases, output_png='method_performance.png', output_tex='method_performance.tex'):
-    method_results = {}
-    problem_order = []
+def generate_graph(directory, case_size):
+    target_methods = ["Ans", "Classifier", "MLP", "BF", "SA", "GA"]
+    method_avg = {method: [] for method in target_methods}
+    method_std = {method: [] for method in target_methods}
+    problem_labels = []
 
-    # Scan all Excel files in the directory
-    for filename in os.listdir(directory):
-        if filename.endswith(".xlsx"):
-            problem_name = filename.split("_")[1]  # Extract nickname
-            problem_order.append(problem_name)
-            full_path = os.path.join(directory, filename)
-            df = pd.read_excel(full_path, sheet_name="גיליון1")
+    # Get all Excel files in the directory
+    problem_files = [(f.split("_")[1], os.path.join(directory, f))
+                     for f in sorted(os.listdir(directory)) if f.endswith(".xlsx")]
 
-            for i in range(0, min(len(df), num_test_cases * 2), 2):
-                if i + 1 >= len(df):
-                    continue
-                row_avg = df.iloc[i]
-                row_std = df.iloc[i + 1]
-                for col in df.columns[2:]:
-                    method = col
-                    if method not in method_results:
-                        method_results[method] = {"problem": [], "avg": [], "std": []}
-                    method_results[method]["problem"].append(problem_name)
-                    method_results[method]["avg"].append(row_avg[col])
-                    method_results[method]["std"].append(row_std[col])
+    # Read data from each file
+    for name, path in problem_files:
+        df = pd.read_excel(path, sheet_name="גיליון1")
+        match_indices = df.index[df.iloc[:, 0] == case_size].tolist()
 
-    # Sort problems for smooth graph
-    problem_order = sorted(set(problem_order))
-    sorted_methods = sorted(method_results.keys())
+        if not match_indices:
+            for method in target_methods:
+                method_avg[method].append(np.nan)
+                method_std[method].append(0.0)
+            continue
+
+        i = match_indices[0]
+        avg_row = df.iloc[i]
+        std_row = df.iloc[i + 1]
+        problem_labels.append(name)
+
+        for method in target_methods:
+            matching_cols = [col for col in df.columns if method in col and "_best" in col]
+            if matching_cols:
+                col = matching_cols[0]
+                try:
+                    avg = float(avg_row[col])
+                    std = float(std_row[col])
+                except:
+                    avg, std = np.nan, 0.0
+            else:
+                avg, std = np.nan, 0.0
+            method_avg[method].append(avg)
+            method_std[method].append(std)
 
     # Plot PNG
+    x_vals = np.arange(len(problem_labels))
     fig, ax = plt.subplots(figsize=(14, 6))
-    x = list(range(len(problem_order)))
+    colors = cm.tab10(np.linspace(0, 1, len(target_methods)))
 
-    for method in sorted_methods:
-        data = method_results[method]
-        problem_to_val = dict(zip(data["problem"], zip(data["avg"], data["std"])))
-        if not all(p in problem_to_val for p in problem_order):
-            continue
-        y_avg = [problem_to_val[p][0] for p in problem_order]
-        y_std = [problem_to_val[p][1] for p in problem_order]
-        ax.errorbar(x, y_avg, yerr=y_std, label=method, marker='o', linestyle='-', capsize=3)
+    for i, method in enumerate(target_methods):
+        ax.errorbar(x_vals, method_avg[method], yerr=method_std[method], fmt='-o', color=colors[i], label=method, capsize=5)
 
-    ax.set_xticks(x)
-    ax.set_xticklabels(problem_order, rotation=45)
+    ax.set_xticks(x_vals)
+    ax.set_xticklabels(problem_labels, rotation=45)
     ax.set_ylabel("Probability (Average)")
-    ax.set_title("Performance Across Problems with Error Bars")
+    ax.set_title(f"All Problems – {case_size} Test Cases (Lines per Method)")
+    ax.legend(title="Methods", bbox_to_anchor=(1.05, 1), loc='upper left')
     ax.grid(True)
-    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-    fig.tight_layout()
+    plt.tight_layout()
+    plt.savefig(os.path.join(directory, f"method_performance_{case_size}.png"))
+    plt.close()
 
-    output_png_path = os.path.join(directory, output_png)
-    fig.savefig(output_png_path)
-
-    # Generate LaTeX (pgfplots)
+    # Generate LaTeX
     latex_code = r"""\documentclass{standalone}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
-\usepackage{pgfplotstable}
 \begin{document}
 \begin{tikzpicture}
 \begin{axis}[
@@ -68,39 +74,30 @@ def generate_method_graphs(directory, num_test_cases, output_png='method_perform
     xlabel={Problem},
     ylabel={Probability (Average)},
     xtick=data,
-    xticklabels={""" + ",".join(problem_order) + r"""},
+    xticklabels={""" + ",".join(problem_labels) + r"""},
     xticklabel style={rotate=45, anchor=east},
     legend style={at={(1.05,1)}, anchor=north west},
     grid=both,
-    error bars/.cd, y dir=both, y explicit,
+    error bars/y dir=both,
+    error bars/y explicit,
     cycle list name=color list
 ]
 """
-
-    for method in sorted_methods:
-        data = method_results[method]
-        problem_to_val = dict(zip(data["problem"], zip(data["avg"], data["std"])))
-        if not all(p in problem_to_val for p in problem_order):
-            continue
-        coords = " ".join(
-            f"({i},{problem_to_val[p][0]}) +- (0,{problem_to_val[p][1]})"
-            for i, p in enumerate(problem_order)
-        )
-        latex_code += f"\\addplot+[error bars/.cd, y dir=both, y explicit] coordinates {{{coords}}};\n"
-        latex_code += f"\\addlegendentry{{{method.replace('_', r'\\_')}}}\n"
+    for method in target_methods:
+        coords = [f"({i},{method_avg[method][i]}) +- (0,{method_std[method][i]})" for i in range(len(problem_labels))]
+        latex_code += "\\addplot+[error bars/.cd, y dir=both, y explicit] coordinates {" + ' '.join(coords) + "};\n"
+        latex_code += "\\addlegendentry{" + method.replace("_", "\\_") + "}\n"
 
     latex_code += r"""\end{axis}
 \end{tikzpicture}
-\end{document}
-"""
+\end{document}"""
 
-    output_tex_path = os.path.join(directory, output_tex)
-    with open(output_tex_path, "w") as f:
+    with open(os.path.join(directory, f"method_performance_{case_size}.tex"), "w") as f:
         f.write(latex_code)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate method performance graphs from Excel files.")
-    parser.add_argument("directory", type=str, help="Directory containing Excel files")
-    parser.add_argument("num_test_cases", type=int, help="Number of test cases to include")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("directory", type=str, help="Directory with Excel files")
+    parser.add_argument("case_size", type=int, help="Number of test cases (e.g., 500, 1100, 3900)")
     args = parser.parse_args()
-    generate_method_graphs(args.directory, args.num_test_cases)
+    generate_graph(args.directory, args.case_size)
