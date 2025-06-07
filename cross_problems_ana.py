@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import argparse
 
 def generate_method_graphs(directory, num_test_cases, output_png='method_performance.png', output_tex='method_performance.tex'):
     method_results = {}
@@ -97,5 +98,9 @@ def generate_method_graphs(directory, num_test_cases, output_png='method_perform
     with open(output_tex_path, "w") as f:
         f.write(latex_code)
 
-# Example usage (uncomment to run):
-# generate_method_graphs("/path/to/directory", num_test_cases=3)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate method performance graphs from Excel files.")
+    parser.add_argument("directory", type=str, help="Directory containing Excel files")
+    parser.add_argument("num_test_cases", type=int, help="Number of test cases to include")
+    args = parser.parse_args()
+    generate_method_graphs(args.directory, args.num_test_cases)
