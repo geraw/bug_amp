@@ -2,7 +2,7 @@
 
 
 from a_more_complex_threads import init_complex, thread0_complex, thread1_complex
-from boolean_flags_are_enough_for_everyone import FirstArmy, SecondArmy, initArmy
+from Shared_flag_Boolean import FirstArmy, SecondArmy, initArmy
 from condition_variables import Dequeue1, Dequeue2, Enqueue, init_queue
 from insufficient_lock import init_lock, thread_lock_0, thread_lock_1
 from simulate import simulate

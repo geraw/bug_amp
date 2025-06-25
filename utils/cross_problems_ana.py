@@ -17,6 +17,7 @@ def generate_graph(directory, case_size):
 
     # Read data from each file
     for name, path in problem_files:
+        
         df = pd.read_excel(path, sheet_name="גיליון1")
         match_indices = df.index[df.iloc[:, 0] == case_size].tolist()
 
