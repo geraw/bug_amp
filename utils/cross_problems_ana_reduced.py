@@ -1,11 +1,8 @@
 
 """
-cross_problems_ana.py  – updated (Ens, BF, SA, GA)
+cross_problems_ana_fixedcols.py
 
-Changes applied:
-    1. Dropped 'Classifier' and 'MLP' series entirely.
-    2. Renamed 'Ans' → 'Ens' (ensemble).
-    3. Each method now has a unique marker (o, x, s, ^) in both PNG and LaTeX outputs.
+Fixed version: Ens=C (2), BF=L (11), SA=O (14), GA=P (15)
 """
 
 import os
@@ -16,17 +13,16 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 def generate_graph(directory, case_size):
-    # Updated target methods
     target_methods = ["Ens", "BF", "SA", "GA"]
-    method_avg = {method: [] for method in target_methods}
-    method_std = {method: [] for method in target_methods}
+    col_indices = [2, 11, 14, 15]  # fixed column positions for each method
+    method_avg = {m: [] for m in target_methods}
+    method_std = {m: [] for m in target_methods}
     problem_labels = []
 
-    # Get all Excel files in the directory
+    # Gather Excel files
     problem_files = [(f.split("_")[1], os.path.join(directory, f))
                      for f in sorted(os.listdir(directory)) if f.endswith(".xlsx")]
 
-    # Read data from each file
     for name, path in problem_files:
         df = pd.read_excel(path, sheet_name="גיליון1")
         match_indices = df.index[df.iloc[:, 0] == case_size].tolist()
@@ -42,16 +38,11 @@ def generate_graph(directory, case_size):
         std_row = df.iloc[i + 1]
         problem_labels.append(name)
 
-        for method in target_methods:
-            matching_cols = [col for col in df.columns if method in col and "_best" in col]
-            if matching_cols:
-                col = matching_cols[0]
-                try:
-                    avg = float(avg_row[col])
-                    std = float(std_row[col])
-                except:
-                    avg, std = np.nan, 0.0
-            else:
+        for method, col in zip(target_methods, col_indices):
+            try:
+                avg = float(avg_row.iloc[col])
+                std = float(std_row.iloc[col])
+            except:
                 avg, std = np.nan, 0.0
             method_avg[method].append(avg)
             method_std[method].append(std)
@@ -60,7 +51,7 @@ def generate_graph(directory, case_size):
     x_vals = np.arange(len(problem_labels))
     fig, ax = plt.subplots(figsize=(14, 6))
     colors = cm.tab10(np.linspace(0, 1, len(target_methods)))
-    markers = ['o', 'x', 's', '^']  # Unique markers
+    markers = ['o', 'x', 's', '^']
 
     for i, method in enumerate(target_methods):
         ax.errorbar(
@@ -82,7 +73,7 @@ def generate_graph(directory, case_size):
     plt.savefig(os.path.join(directory, f"method_performance_{case_size}.png"), dpi=300)
     plt.close()
 
-    # Generate LaTeX
+    # Generate LaTeX plot
     latex_code = r"""\documentclass{standalone}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
@@ -102,7 +93,7 @@ def generate_graph(directory, case_size):
 ]
 """
 
-    latex_markers = ['*', 'x', 'square*', 'triangle*']  # pgfplots marker styles
+    latex_markers = ['*', 'x', 'square*', 'triangle*']
 
     for idx, method in enumerate(target_methods):
         coords = [f"({i},{method_avg[method][i]}) +- (0,{method_std[method][i]})"
@@ -111,13 +102,13 @@ def generate_graph(directory, case_size):
             f"\\addplot+[mark={latex_markers[idx]}, error bars/.cd, y dir=both, y explicit] "
             f"coordinates {{ {' '.join(coords)} }};\n"
         )
-        latex_code += f"\\addlegendentry{{{method.replace('_', '\\_')}}}\n"
+        latex_code += f"\\addlegendentry{{{method}}}\n"
 
     latex_code += r"""\end{axis}
 \end{tikzpicture}
 \end{document}"""
 
-    with open(os.path.join(directory, f"method_performance_{case_size}.tex"), "w") as f:
+    with open(os.path.join(directory, f"method_performance_{case_size}.tex"), "w", encoding="utf-8") as f:
         f.write(latex_code)
 
 if __name__ == "__main__":

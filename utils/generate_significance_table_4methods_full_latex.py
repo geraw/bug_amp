@@ -1,198 +1,148 @@
-
+#!/usr/bin/env python
 """
-generate_significance_table_4methods.py
-
-Creates:
-    • LaTeX (.tex) directional significance matrix
-    • PNG preview (optional via --png)
-
-Method set (4):
-    Ens_best   – column C
-    BF_best    – column L   (Brute Force)
-    SA_best    – column O   (Simulated Annealing)
-    GA_best    – column P   (Genetic Algorithm)
-
-Statistical test:
-    One‑sided Wilcoxon signed‑rank (paired)
-    α = 0.05
-
-Colour logic:
-    🟩 Green  – column is significantly better than row (p < α)
-    🟥 Red    – row is significantly better than column (p < α)
-    ⚪ Gray   – not significant
-
-Shade intensity:
-    Darker shade → smaller p‑value (stronger evidence)
-
-Usage
------
-    python generate_significance_table_4methods.py results.xlsx --png
+generate_significance_table_4methods_full_latex.py
+--------------------------------------------------
+• Reads ONE Excel file or every *.xls[x] in a directory.
+• Creates one PNG per workbook  <base>_sig4.png   (unless --nopng).
+• Creates ONE master .tex file in the SAME folder:
+      – Single workbook  → <base>_sig4.tex
+      – Directory        → generate_significance_table_4methods_full_latex.tex
+Colour logic, statistics, and column mapping unchanged.
 """
-import argparse
-import os
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+
+import argparse, os, numpy as np, pandas as pd, matplotlib.pyplot as plt
 from scipy.stats import wilcoxon
 
-ALPHA = 0.05
-COL_LETTERS = ["C", "L", "O", "P"]  # Ens, BF, SA, GA
-LABELS = ["Ensemble Classification", "Brute Force", "Simulated Annealing", "Genetic Algorithm"]
+# ------------------------------------------------------------------- config
+ALPHA     = 0.05
+COLS      = ["C", "L", "O", "P"]
+LABELS    = ["Ensemble Classification",
+             "Brute Force",
+             "Simulated Annealing",
+             "Genetic Algorithm"]
 
+# ------------------------------------------------------------------- helpers
+def excel_list(path: str):
+    if os.path.isdir(path):
+        return [os.path.join(path, f) for f in sorted(os.listdir(path))
+                if f.endswith(('.xls', '.xlsx'))]
+    return [path] if path.endswith(('.xls', '.xlsx')) else []
 
-# ----------------------------------------------------------------------
-# Helpers
-# ----------------------------------------------------------------------
-def load_columns(excel_path, col_letters):
-    df = pd.read_excel(excel_path, header=None)
-    avrg_rows = df[1] == "AVRG"
-    data = []
-    for letter in col_letters:
-        idx = ord(letter.upper()) - ord("A")
-        data.append(df.loc[avrg_rows, idx].astype(float).to_numpy())
-    return data
+def load_cols(path, col_letters):
+    df = pd.read_excel(path, header=None)
+    avrg = df[1] == "AVRG"
+    return [df.loc[avrg, ord(c)-65].astype(float).to_numpy() for c in col_letters]
 
-
-def wilcoxon_directional(method_data):
-    n = len(method_data)
-    matrix = [["" for _ in range(n)] for _ in range(n)]
+def wilcoxon_matrix(data):
+    n = len(data)
+    M = [["" for _ in range(n)] for _ in range(n)]
     for i in range(n):
         for j in range(n):
             if i == j:
-                matrix[i][j] = "diag"
+                M[i][j] = "diag"
+                continue
+            diff = data[j] - data[i]
+            p_col = wilcoxon(diff, alternative="less").pvalue   # column better
+            p_row = wilcoxon(diff, alternative="greater").pvalue # row better
+            if p_col < p_row:
+                col = "green" if p_col < ALPHA else "gray"; p = p_col
             else:
-                diff = method_data[j] - method_data[i]
-                p_col_better = wilcoxon(diff, alternative="less").pvalue   # column better
-                p_row_better = wilcoxon(diff, alternative="greater").pvalue  # row better
+                col = "red"   if p_row < ALPHA else "gray"; p = p_row
+            M[i][j] = (col, f"{p:.3f}", p)
+    return M
 
-                if p_col_better < p_row_better:
-                    direction = "green" if p_col_better < ALPHA else "gray"
-                    p_val = p_col_better
-                else:
-                    direction = "red" if p_row_better < ALPHA else "gray"
-                    p_val = p_row_better
+def p_shade(p, alpha=ALPHA, lo=30, hi=80):
+    if p >= alpha: return lo
+    return int(lo + (alpha-p)/alpha * (hi-lo))
 
-                matrix[i][j] = (direction, f"{p_val:.3f}", p_val)
-    return matrix
-
-
-def p_to_intensity(p, alpha=ALPHA, min_pct=30, max_pct=80):
-    if p >= alpha:
-        return min_pct
-    frac = (alpha - p) / alpha
-    return int(min_pct + frac * (max_pct - min_pct))
-
-
-# ----------------------------------------------------------------------
-# LaTeX
-# ----------------------------------------------------------------------
-HEADER = r"""
-\documentclass{article}
-\usepackage{colortbl}
-\usepackage{tikz}
-\usepackage{adjustbox}
-\usepackage{array}
-\begin{document}
-\begin{table}[h!]
-\centering
-\caption{Directional Wilcoxon significance matrix ($p<0.05$)}
-\begin{adjustbox}{width=1.05\textwidth}
-\renewcommand{\arraystretch}{1.5}
-"""
-FOOTER = r"""\end{adjustbox}
-\end{table}
-\end{document}
-"""
-
-def matrix_to_latex(matrix, labels, tex_path):
+# ------------------------------------------------------------------- LaTeX
+def matrix_to_block(M, labels, caption):
     n = len(labels)
-    latex = HEADER
-    latex += r"\begin{tabular}{c|" + "c"*n + "}\n"
-    latex += " & " + " & ".join(labels) + r" \\\hline" + "\n"
-
-    for i, row in enumerate(matrix):
-        line = labels[i]
-        for j, cell in enumerate(row):
-            if cell == "diag":
-                line += " & "
+    lines = [r"\pgfplotsset{compat=1.3,width=0.8\columnwidth}",
+             r"\begin{figure}[H]\centering\vspace{3ex}",
+             r"\begin{adjustbox}{max width=\textwidth}",
+             r"\renewcommand{\arraystretch}{1.5}",
+             r"\begin{tabular}{c|" + "c"*n + "}"]
+    lines.append(" & " + " & ".join(labels) + r" \\ \hline")
+    for i,row in enumerate(M):
+        ln = labels[i]
+        for j,c in enumerate(row):
+            if c == "diag":
+                ln += " & "
             else:
-                color, ptxt, pval = cell
-                if color == "gray":
+                col, ptxt, pval = c
+                if col == "gray":
                     tikz = rf"\tikz[baseline=(char.base)]{{\node[fill=lightgray,rounded corners=0.5mm,inner sep=5pt] (char) {{{ptxt}}};}}"
                 else:
-                    base = "green" if color == "green" else "red"
-                    pct = p_to_intensity(pval)
-                    tikz = rf"\tikz[baseline=(char.base)]{{\node[fill={base}!{pct + 10}!white,rounded corners=0.5mm,inner sep=5pt] (char) {{{ptxt}}};}}"
-                line += f" & {tikz}"
-        latex += line + r" \\" + "\n"
+                    base = "green" if col == "green" else "red"
+                    tikz = rf"\tikz[baseline=(char.base)]{{\node[fill={base}!{p_shade(pval)}!white,rounded corners=0.5mm,inner sep=5pt] (char) {{{ptxt}}};}}"
+                ln += f" & {tikz}"
+        lines.append(ln + r" \\")
+    lines.extend([r"\end{tabular}", r"\end{adjustbox}",
+                  rf"\caption{{{caption}}}", rf"\label{{tab:{caption.replace(' ', '_')}}}",
+                  r"\end{figure}", "%----------------------------------------", ""])
+    return "\n".join(lines)
 
-    latex += r"\end{tabular}" + FOOTER
-    with open(tex_path, "w") as f:
-        f.write(latex)
-
-
-# ----------------------------------------------------------------------
-# PNG
-# ----------------------------------------------------------------------
-def matrix_to_png(matrix, labels, out_path):
-    n = len(labels)
-    fig, ax = plt.subplots(figsize=(4 + n, 4 + n))
-    ax.axis("off")
-
-    cell = 1.0
+# ------------------------------------------------------------------- PNG
+def matrix_to_png(M, labels, out_png):
+    n=len(labels); cell=1.0
+    fig,ax = plt.subplots(figsize=(4+n,4+n)); ax.axis('off')
     for i in range(n):
         for j in range(n):
-            x, y = j*cell, (n-1-i)*cell
-            if matrix[i][j] == "diag":
-                color = (0.95, 0.95, 0.95, 1)
-                txt = ""
+            x,y=j*cell,(n-1-i)*cell
+            if M[i][j]=="diag":
+                col=(0.95,0.95,0.95,1); txt=""
             else:
-                clr, txt, pval = matrix[i][j]
-                if clr == "gray":
-                    color = (0.9, 0.9, 0.9, 1)
+                clr,txt,p = M[i][j]
+                if clr=="gray":
+                    col=(0.9,0.9,0.9,1)
                 else:
-                    base = np.array([0.8, 1.0, 0.8]) if clr == "green" else np.array([1.0, 0.8, 0.8])
-                    intensity = (ALPHA - min(pval, ALPHA)) / ALPHA  # 0..1
-                    # mix toward base (darker)
-                    color = base - intensity * 0.4
-                    color = np.clip(color, 0, 1)
+                    base=np.array([0.8,1,0.8]) if clr=="green" else np.array([1,0.8,0.8])
+                    col=base-((ALPHA-min(p,ALPHA))/ALPHA)*0.4
+                ax.add_patch(plt.Rectangle((x,y),cell,cell,facecolor=col,edgecolor='black'))
+            ax.text(x+cell/2,y+cell/2,txt,ha='center',va='center',fontsize=10)
+    for k,lbl in enumerate(labels):
+        ax.text(k*cell+cell/2,n*cell+0.1,lbl,ha='center',va='bottom',rotation=45)
+        ax.text(-0.1,(n-1-k)*cell+cell/2,lbl,ha='right',va='center')
+    ax.set_xlim(0,n*cell); ax.set_ylim(0,n*cell); plt.tight_layout()
+    plt.savefig(out_png,dpi=300); plt.close()
 
-                ax.add_patch(plt.Rectangle((x, y), cell, cell, facecolor=color, edgecolor='black'))
-            ax.text(x+cell/2, y+cell/2, txt, ha='center', va='center', fontsize=10)
-
-    for idx, lbl in enumerate(labels):
-        ax.text(idx*cell+cell/2, n*cell+0.1, lbl, ha='center', va='bottom', fontsize=11, rotation=45)
-        ax.text(-0.1, (n-1-idx)*cell+cell/2, lbl, ha='right', va='center', fontsize=11)
-
-    ax.set_xlim(0, n*cell)
-    ax.set_ylim(0, n*cell)
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
-    plt.close()
-
-
-# ----------------------------------------------------------------------
-# main
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------- main
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("excel", help="Excel file with results")
-    parser.add_argument("--png", action="store_true", help="also save PNG preview")
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("target", help="Excel file or directory")
+    ap.add_argument("--nopng", action="store_true", help="skip PNG creation")
+    args = ap.parse_args()
 
-    data = load_columns(args.excel, COL_LETTERS)
-    matrix = wilcoxon_directional(data)
+    sheets = excel_list(args.target)
+    if not sheets:
+        print("No Excel files found."); return
 
-    base = os.path.splitext(args.excel)[0]
-    tex_path = base + "_sig4.tex"
-    matrix_to_latex(matrix, LABELS, tex_path)
-    print("LaTeX saved:", tex_path)
+    out_dir = args.target if os.path.isdir(args.target) else os.path.dirname(args.target) or "."
+    blocks  = []
 
-    if args.png:
-        png_path = base + "_sig4.png"
-        matrix_to_png(matrix, LABELS, png_path)
-        print("PNG saved:", png_path)
+    for xl in sheets:
+        data   = load_cols(xl, COLS)
+        M      = wilcoxon_matrix(data)
+        parts = os.path.splitext(os.path.basename(xl))[0].split('_')
+        token = parts[1] if len(parts) > 1 else parts[0]
+        blocks.append(matrix_to_block(M, LABELS, token))
+        if not args.nopng:
+            png_path = os.path.join(out_dir, os.path.splitext(os.path.basename(xl))[0] + "_sig4.png")
+            matrix_to_png(M, LABELS, png_path)
+            print("PNG:", png_path)
 
+    # master tex filename
+    if len(sheets) == 1:
+        base = os.path.splitext(os.path.basename(sheets[0]))[0]
+        master = base + "_sig4.tex"
+    else:
+        master = os.path.splitext(os.path.basename(__file__))[0] + ".tex"
+
+    master_path = os.path.join(out_dir, master)
+    with open(master_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(blocks))
+    print("LaTeX:", master_path)
 
 if __name__ == "__main__":
     main()
