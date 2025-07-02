@@ -1,5 +1,3 @@
-README.me
-
 # Bug Amplification Benchmark
 
 This repository provides a comprehensive benchmark suite and search framework for amplifying concurrency bugs in multi-threaded software using delay injection and machine learning-guided heuristics.
