@@ -28,7 +28,7 @@ from matplotlib.colors import to_rgba
 # ---------------------------------------------------------------------------
 METHODS        = ['Ens', 'BF', 'SA', 'GA']
 COL_IDX        = {'Ens':2, 'BF':11, 'SA':14, 'GA':15}
-BASE_COLOURS   = {'Ens':'#1f77b4','BF':'#ff7f0e','SA':'#2ca02c','GA':'#d62728'}
+BASE_COLOURS   = {'Ens':"#73b41f",'BF':'#ff7f0e','SA':'#2ca02c','GA':'#d62728'}
 BAR_W          = 0.18
 PROB_SHIFT_PX  = 0.02    # ← tiny lateral offset per problem (PNG)
 PROB_SHIFT_PT  = 0.8     # ← same offset in TikZ (≈0.02*40pt)
@@ -82,9 +82,9 @@ def plot_png(tcs, data, probs, out_png):
                 alpha = 0.3 + 0.7*(pi/(max(1,n_prob-1)))
                 color = to_rgba(BASE_COLOURS[m], alpha=alpha)
                 ax.bar(x0+shift, avg, BAR_W, color=color,
-                       yerr=std if std>0 else None, capsize=2,
-                       edgecolor='none')
-                
+                       yerr=std, capsize=3,
+                       error_kw={'ecolor': 'black', 'alpha': 0.7, 'linewidth': 1},
+                       edgecolor='black')
                 # Add to legend (only once per method-problem combination)
                 if ti == 0:  # Only add to legend for first test case
                     legend_elements.append(plt.Rectangle((0,0),1,1,fc=color))
@@ -127,7 +127,6 @@ def plot_tex(tcs, data, probs, out_tex):
 
     tex  = r"""\begin{figure}[H]
     \centering
-    \rotatebox{270}{
     \begin{tikzpicture}
     \begin{axis}[
   ybar,
@@ -156,14 +155,24 @@ def plot_tex(tcs, data, probs, out_tex):
         # Changed: first file is darkest (90), last file is lightest (20)
         intensity = int(90 - 70*pi/max(1,n_prob-1))
         for m in METHODS:
-            pts = " ".join(f"({t}-{m},{data[t][m][pi][0]:.3f})" for t in tcs)
+            # Create coordinates with error values
+            coords_with_errors = []
+            for t in tcs:
+                avg_val = data[t][m][pi][0]
+                std_val = data[t][m][pi][1]
+                coords_with_errors.append(f"({t}-{m},{avg_val:.3f}) +- (0,{std_val:.3f})")
+            
+            coords_str = " ".join(coords_with_errors)
             tex += rf"""
 \addplot+[
   bar shift={shift_pt:.2f}pt,
   draw=none,
-  fill=black!{intensity}!{col_map[m]}
+  fill=black!{intensity}!{col_map[m]},
+  error bars/.cd,
+  y dir=both,
+  y explicit
 ] coordinates {{
-  {pts}
+  {coords_str}
 }};"""
             legend_entries.append(f"{m}-{p}")
 
@@ -194,8 +203,8 @@ def main():
 
     tcs, data, probs = aggregate(excel_files)
     out_dir = Path(excel_files[0]).parent
-    plot_png(tcs, data, probs, out_dir / "multi_excel_bar_chart.png")
-    plot_tex(tcs, data, probs, out_dir / "multi_excel_bar_chart.tex")
+    plot_png(tcs, data, probs, out_dir / "multi_excel_bar_chart_err.png")
+    plot_tex(tcs, data, probs, out_dir / "multi_excel_bar_chart_err.tex")
     print("✅ Done.")
     print(f"Problems processed (first=darkest, last=lightest): {probs}")
 
