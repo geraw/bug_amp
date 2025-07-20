@@ -80,23 +80,23 @@ ALL_PROBLEM_NAMES_LIST = [
 # as they are defined in your `interface_function.py` or other relevant files.
 # The `multip` and `n_features` values should also be correct for each problem.
 PROBS_CONFIG = {
-    'atomicity_bypass': ('anomaly_bypass', lambda x, **kwargs: (run_test_bypass(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'broken_barrier': ('Barrier', lambda x, **kwargs: (run_test_berrier(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'broken_peterson': ('peterson', lambda x, **kwargs: (run_test_peterson(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'delayed_write': ('testNset', lambda x, **kwargs: (run_test_our(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 2, 20), # Assuming testNset maps to Delayed Write or similar
-    'flagged_deadlock': ('deadlock', lambda x, **kwargs: (run_test_deadlock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 50),
-    'if_not_while': ('Non_atomic', lambda x, **kwargs: (run_test_non_atomic(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)),10, 30),
-    'lock_order_inversion': ('lock', lambda x, **kwargs: (run_test_lock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'lost_signal': ('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'partial_lock': ('boolean', lambda x, **kwargs: (run_test_boolean(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10,30), # Assuming boolean maps to Partial Lock or similar
+    'atomicity_bypass': ('atomicity_bypass', lambda x, **kwargs: (run_test_bypass(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'broken_barrier': ('broken_barrier', lambda x, **kwargs: (run_test_berrier(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'broken_peterson': ('broken_peterson', lambda x, **kwargs: (run_test_peterson(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'delayed_write': ('delayed_write', lambda x, **kwargs: (run_test_our(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 2, 20), # Assuming testNset maps to Delayed Write or similar
+    'flagged_deadlock': ('flagged_deadlock', lambda x, **kwargs: (run_test_deadlock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 50),
+    'if_not_while': ('if_not_while', lambda x, **kwargs: (run_test_non_atomic(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)),10, 30),
+    'lock_order_inversion': ('lock_order_inversion', lambda x, **kwargs: (run_test_lock(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'lost_signal': ('lost_signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'partial_lock': ('partial_lock', lambda x, **kwargs: (run_test_boolean(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10,30), # Assuming boolean maps to Partial Lock or similar
     'phantom_permit': ('phantom_permit', lambda x, **kwargs: (run_test_permit(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'race_to_wait': ('waiter', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # Assuming waiter maps to Race-To-Wait
-    'racy_increment': ('race', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
-    'semaphore_leak': ('semaphore', lambda x, **kwargs: (run_test_semaphore(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
-    'shared_counter': ('complex', lambda x, **kwargs: (run_test_complex(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # Assuming complex maps to Shared Counter
-    'shared_flag': ('condition', lambda x, **kwargs: (run_test_condition(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # Assuming condition maps to Shared Flag
-    'signal_then_wait': ('signal', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # If 'signal' is meant to cover Signal-Then-Wait
-    'sleeping_guard': ('sleeping', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'race_to_wait': ('race_to_wait', lambda x, **kwargs: (run_test_waiter(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # Assuming waiter maps to Race-To-Wait
+    'racy_increment': ('racy_increment', lambda x, **kwargs: (run_test_race(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 1, 30),
+    'semaphore_leak': ('semaphore_leak', lambda x, **kwargs: (run_test_semaphore(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
+    'shared_counter': ('shared_counter', lambda x, **kwargs: (run_test_complex(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # Assuming complex maps to Shared Counter
+    'shared_flag': ('shared_flag', lambda x, **kwargs: (run_test_condition(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # Assuming condition maps to Shared Flag
+    'signal_then_wait': ('signal_then_wait', lambda x, **kwargs: (run_test_signal(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30), # If 'signal' is meant to cover Signal-Then-Wait
+    'sleeping_guard': ('sleeping_guard', lambda x, **kwargs: (run_test_sleeping(x, **kwargs)), lambda x, **kwargs: (prob_our(x, **kwargs)), 10, 30),
     # Add other problems here following the format:
     # 'document_name': ('internal_name', run_test_func, prob_func, multip, n_features),
 }
@@ -106,4 +106,4 @@ PROBS_CONFIG = {
 probs = []
 
 # List of all available methods
-ALL_METHOD_NAMES = ['Ans', 'Classifier', 'MLP', 'BF', 'SA', 'GA']
+ALL_METHOD_NAMES = ['Ens', 'BF', 'SA', 'GA']

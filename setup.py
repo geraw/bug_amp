@@ -232,7 +232,8 @@ def find_max_prob(n=1, D=None ):
     else:
         X = get_n_random_items(D, int((2*cost*constants.N_TRAIN)/B))
     probs = [prob(x, max_trials=constants.B, no_found=constants.B) for x in X]
-
+    print(f"Number of vectors: {len(X)}")
+    print(f"Number of probabilities: {len(probs)}")
     # Get indices of top n probabilities
     top_n_indices = np.argsort(probs)[-n:][::-1]  # Reverse order
 
@@ -246,7 +247,7 @@ def find_max_prob(n=1, D=None ):
     std_prob = np.std(top_probs)
 
     # print(f"Top {n} vectors: {top_vectors}")
-    # print(f"Top {n} probabilities: {top_probs}")
+    print(f"Top {n} probabilities: {top_probs}")
     # print(f"Average probability: {avg_prob}")
     # print(f"Standard deviation of probabilities: {std_prob}")
 
