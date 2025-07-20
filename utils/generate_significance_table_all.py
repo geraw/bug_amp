@@ -61,12 +61,14 @@ def process_file(filepath):
         elif 0.05 < p < 0.95:
             row.append(tikz_box(p, "gray"))
         else:
-            row.append("")
+            # row.append("")
+            row.append(tikz_box(p, "red"))
+
     return row
 
 def main(directory: str):
     d = Path(directory)
-    headers = ["Problem"] + [f"{a}$\\rightarrow${b}" for a, b in PAIRS]
+    headers = ["Problem"] + [f"{a}$\\leftrightarrow${b}" for a, b in PAIRS]
     rows = []
 
     for f in sorted(d.glob("results_*.xlsx")):
@@ -92,8 +94,8 @@ def main(directory: str):
         r"Each cell shows the $p$-value for the hypothesis that the left method "
         r"performs better than the right (e.g., Ans$\rightarrow$BF). "
         r"\textcolor{green}{Green boxes} indicate significant results ($p\le0.05$), "
-        r"\textcolor{gray}{gray boxes} indicate no significance ($0.05<p<0.95$), "
-        r"and blanks indicate evidence in the wrong direction or unusable data.}",
+        r"\textcolor{gray}{Gray boxes} indicate no significance ($0.05<p<0.95$), "
+        r"and \textcolor{red}{Red boxes} indicate evidence in the opposite direction.}",
         r"\label{tab:wilcoxon-best}",
         r"\end{table}"
     ]
