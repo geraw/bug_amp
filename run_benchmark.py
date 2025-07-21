@@ -8,8 +8,8 @@ import argparse
 import os # For creating directories if needed
 
 # Import all necessary components from new_constants and other modules
-import new_constants
-from new_constants import (
+import constants
+from constants import (
     # These will now be defaults, so they don't need to be imported directly here
     # NUM_TO_CHECK, NUM_OF_TESTS, N_TRAIN,
     N_PARALLEL, random_state,
@@ -58,8 +58,8 @@ def run_test_yield(X, max_trials=1, no_found=1):
     global single_run_test
     # Assuming n_features and new_constants.multip are set correctly for the current problem
     # These are dynamically set within the main loop based on the problem.
-    current_n_features = new_constants.n_features # This relies on new_constants.n_features being updated
-    for i in range(new_constants.N_PARALLEL):
+    current_n_features = constants.n_features # This relies on new_constants.n_features being updated
+    for i in range(constants.N_PARALLEL):
         x = X[i * current_n_features : (i + 1) * current_n_features]
         yield single_run_test(x, max_trials=max_trials, no_found=no_found)
 
@@ -73,12 +73,12 @@ def run_classifier():
                         help=f"Problems to run. 'all' for all problems, or a comma-separated list of specific problem names (e.g., 'if_not_while,broken_barrier'). Available: {', '.join(ALL_PROBLEM_NAMES_LIST)}")
     parser.add_argument('--method', type=str, default='all',
                         help=f"Methods to run. 'all' for all methods, or a comma-separated list of specific method names (e.g., 'Ens,GA'). Available: {', '.join(ALL_METHOD_NAMES)}")
-    parser.add_argument('--NUM_TO_CHECK', type=int, default=new_constants.NUM_TO_CHECK,
-                        help=f"Number of increment steps (test budget) for every problem. Default: {new_constants.NUM_TO_CHECK}")
-    parser.add_argument('--NUM_OF_TESTS', type=int, default=new_constants.NUM_OF_TESTS,
-                        help=f"Number of tests for calculating the AVR and SDT of the methods. Default: {new_constants.NUM_OF_TESTS}")
-    parser.add_argument('--N_TRAIN', type=int, default=new_constants.N_TRAIN,
-                        help=f"Number of random elements (increments) that the classifier is trained on. Default: {new_constants.N_TRAIN}")
+    parser.add_argument('--NUM_TO_CHECK', type=int, default=constants.NUM_TO_CHECK,
+                        help=f"Number of increment steps (test budget) for every problem. Default: {constants.NUM_TO_CHECK}")
+    parser.add_argument('--NUM_OF_TESTS', type=int, default=constants.NUM_OF_TESTS,
+                        help=f"Number of tests for calculating the AVR and SDT of the methods. Default: {constants.NUM_OF_TESTS}")
+    parser.add_argument('--N_TRAIN', type=int, default=constants.N_TRAIN,
+                        help=f"Number of random elements (increments) that the classifier is trained on. Default: {constants.N_TRAIN}")
     args = parser.parse_args()
 
     selected_problems_input = [p.strip() for p in args.problems.split(',')]
@@ -110,11 +110,11 @@ def run_classifier():
     method_suffix = 'all' if 'all' in selected_methods_input else '_'.join(sorted(methods_to_run))
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    csv_filename = os.path.join(new_constants.csv_file_path, f'results_{problem_suffix}_{method_suffix}_{timestamp}.csv')
-    csv_ab_filename = os.path.join(new_constants.csv_file_path, f'results_ab_{problem_suffix}_{method_suffix}_{timestamp}.csv')
+    csv_filename = os.path.join(constants.csv_file_path, f'results_{problem_suffix}_{method_suffix}_{timestamp}.csv')
+    csv_ab_filename = os.path.join(constants.csv_file_path, f'results_ab_{problem_suffix}_{method_suffix}_{timestamp}.csv')
 
     # Ensure the reports directory exists
-    os.makedirs(new_constants.csv_file_path, exist_ok=True)
+    os.makedirs(constants.csv_file_path, exist_ok=True)
 
     # --- CSV Data Structures (Adapted) ---
     csv_alg_name = [m for m in ALL_METHOD_NAMES if m not in ['Classifier', 'MLP']] # Use the filtered list for internal logic
@@ -189,9 +189,9 @@ def run_classifier():
 
             for original_name, run_test_func, prob_func, current_multip, current_n_features in current_probs_list:
                 problem_display_name = original_name # Use the original name for display and storage keys
-                new_constants.multip = current_multip
-                new_constants.n_features = current_n_features
-                new_constants.bounds = [(0, new_constants.multip) for _ in range(new_constants.n_features)] # Update bounds
+                constants.multip = current_multip
+                constants.n_features = current_n_features
+                constants.bounds = [(0, constants.multip) for _ in range(constants.n_features)] # Update bounds
 
                 single_run_test = run_test_func
                 set_run_test(run_test_parallel)
@@ -211,28 +211,28 @@ def run_classifier():
                 # Ensure random_state is used for reproducibility
                 # Removed mlpclf and clf initializations
                 base_learners = [
-                    ('lr', LogisticRegression(max_iter=1000, class_weight='balanced', random_state=new_constants.random_state)),
-                    ('dt', DecisionTreeClassifier(class_weight='balanced', random_state=new_constants.random_state)),
-                    ('rf', RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=new_constants.random_state)),
-                    ('mlp', MLPClassifier(hidden_layer_sizes=(50, 20), activation='relu', solver='adam', alpha=1e-4, learning_rate='adaptive', max_iter=500, early_stopping=True, validation_fraction=0.1, random_state=new_constants.random_state))
+                    ('lr', LogisticRegression(max_iter=1000, class_weight='balanced', random_state=constants.random_state)),
+                    ('dt', DecisionTreeClassifier(class_weight='balanced', random_state=constants.random_state)),
+                    ('rf', RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=constants.random_state)),
+                    ('mlp', MLPClassifier(hidden_layer_sizes=(50, 20), activation='relu', solver='adam', alpha=1e-4, learning_rate='adaptive', max_iter=500, early_stopping=True, validation_fraction=0.1, random_state=constants.random_state))
                 ]
-                meta_learner = LogisticRegression(class_weight='balanced', max_iter=1000, random_state=new_constants.random_state)
+                meta_learner = LogisticRegression(class_weight='balanced', max_iter=1000, random_state=constants.random_state)
                 stacked_model = StackingClassifier(
                     estimators=base_learners, final_estimator=meta_learner, cv=5, passthrough=True
                 )
 
-                new_constants.cost = 0 # Reset cost for each problem
+                constants.cost = 0 # Reset cost for each problem
 
                 for _ in range(args.NUM_TO_CHECK): # Inner loop for accumulation/iterations, use args.NUM_TO_CHECK
-                    new_constants.cost += 1
-                    print(f"Round {l+1} - {problem_display_name} - Iteration {new_constants.cost}/{args.NUM_TO_CHECK}") # Use args.NUM_TO_CHECK
+                    constants.cost += 1
+                    print(f"Round {l+1} - {problem_display_name} - Iteration {constants.cost}/{args.NUM_TO_CHECK}") # Use args.NUM_TO_CHECK
                     print("---------------------------\n")
 
                     # --- Ensemble (Ens) ---
                     if 'Ens' in methods_to_run:
                         X_accumulated_sm, y_accumulated_sm = accumulate_data(stacked_model, X_accumulated_sm, y_accumulated_sm)
-                        X_train, X_test, y_train, y_test = train_test_split(X_accumulated_sm, y_accumulated_sm, stratify=y_accumulated_sm, test_size=0.01, random_state=new_constants.random_state)
-                        smote = SMOTE(random_state=new_constants.random_state)
+                        X_train, X_test, y_train, y_test = train_test_split(X_accumulated_sm, y_accumulated_sm, stratify=y_accumulated_sm, test_size=0.01, random_state=constants.random_state)
+                        smote = SMOTE(random_state=constants.random_state)
                         X_train_bal, y_train_bal = smote.fit_resample(X_train, y_train)
                         stacked_model.fit(X_train_bal, y_train_bal)
                         predicted_probs = stacked_model.predict_proba(X_accumulated_sm)[:, 1]
@@ -241,9 +241,9 @@ def run_classifier():
                         top_reals = [prob_func(x, max_trials=1000, no_found=1000) for x in top_vectors]
                         sm_sorted_max_real = sorted(top_reals, reverse=True)
 
-                        storage[problem_display_name][new_constants.cost]['Ens']['best'] = sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None
-                        storage[problem_display_name][new_constants.cost]['Ens']['5th'] = sm_sorted_max_real[4] if len(sm_sorted_max_real) > 4 else None
-                        storage[problem_display_name][new_constants.cost]['Ens']['10th'] = sm_sorted_max_real[9] if len(sm_sorted_max_real) > 9 else None
+                        storage[problem_display_name][constants.cost]['Ens']['best'] = sm_sorted_max_real[0] if len(sm_sorted_max_real) > 0 else None
+                        storage[problem_display_name][constants.cost]['Ens']['5th'] = sm_sorted_max_real[4] if len(sm_sorted_max_real) > 4 else None
+                        storage[problem_display_name][constants.cost]['Ens']['10th'] = sm_sorted_max_real[9] if len(sm_sorted_max_real) > 9 else None
                         # print(f'\tBest stacked_model - {storage[problem_display_name][new_constants.cost]['Ens']['best']}')
                         # print(f'\t5th best stacked_model - {storage[problem_display_name][new_constants.cost]['Ens']['5th']}')
                         # print(f'\t10th best stacked_model - {storage[problem_display_name][new_constants.cost]['Ens']['10th']}')
@@ -254,9 +254,9 @@ def run_classifier():
                     # --- BF (Brute Force) ---
                     if 'BF' in methods_to_run:
                         _, top_probs, _, _, max_BF = find_max_prob(n=10) # n=10, so 10 values
-                        storage[problem_display_name][new_constants.cost]['BF']['best'] = top_probs[0] if len(top_probs) > 0 else None
-                        storage[problem_display_name][new_constants.cost]['BF']['5th'] = top_probs[4] if len(top_probs) > 4 else None
-                        storage[problem_display_name][new_constants.cost]['BF']['10th'] = top_probs[9] if len(top_probs) > 9 else None
+                        storage[problem_display_name][constants.cost]['BF']['best'] = top_probs[0] if len(top_probs) > 0 else None
+                        storage[problem_display_name][constants.cost]['BF']['5th'] = top_probs[4] if len(top_probs) > 4 else None
+                        storage[problem_display_name][constants.cost]['BF']['10th'] = top_probs[9] if len(top_probs) > 9 else None
                         # print(f'\tBest BF - {storage[problem_display_name][new_constants.cost]['BF']['best']}')
                         # print(f'\t5th best BF - {storage[problem_display_name][new_constants.cost]['BF']['5th']}')
                         # print(f'\t10th best BF - {storage[problem_display_name][new_constants.cost]['BF']['10th']}')
@@ -264,30 +264,30 @@ def run_classifier():
 
                     # --- SA (Simulated Annealing / Eitan's method) ---
                     if 'SA' in methods_to_run:
-                        D0 = np.array(np.random.rand(new_constants.n_features)) * new_constants.multip
+                        D0 = np.array(np.random.rand(constants.n_features)) * constants.multip
                         start_time = time.time()
-                        u_max, pr_max = using_next_point(D0, bounds=new_constants.bounds, epsilon=new_constants.multip/10,  k=new_constants.MAX_TRIALS, iter=int((2*args.N_TRAIN*new_constants.cost)/new_constants.MAX_TRIALS)) # Use args.N_TRAIN
+                        u_max, pr_max = using_next_point(D0, bounds=constants.bounds, epsilon=constants.multip/10,  k=constants.MAX_TRIALS, iter=int((2*args.N_TRAIN*constants.cost)/constants.MAX_TRIALS)) # Use args.N_TRAIN
                         end_time = time.time()
                         pr_max = prob_func(u_max, max_trials=1000, no_found=1000)
-                        storage[problem_display_name][new_constants.cost]['SA']['best'] = pr_max
+                        storage[problem_display_name][constants.cost]['SA']['best'] = pr_max
                         print(f"\tEitan's convergens: {pr_max} runtime {(end_time - start_time):.2f}")
 
 
                     # --- GA (Genetic Algorithm) ---
                     if 'GA' in methods_to_run:
                         start_time = time.time()
-                        u_max, pr_max = run_ga(pop_size=50, max_gen=int((2*args.N_TRAIN*new_constants.cost)/50), bounds=new_constants.bounds) # Use args.N_TRAIN
+                        u_max, pr_max = run_ga(pop_size=50, max_gen=int((2*args.N_TRAIN*constants.cost)/50), bounds=constants.bounds) # Use args.N_TRAIN
                         end_time = time.time()
                         pr_max = prob_func(u_max, max_trials=1000, no_found=1000)
-                        storage[problem_display_name][new_constants.cost]['GA']['best'] = pr_max
+                        storage[problem_display_name][constants.cost]['GA']['best'] = pr_max
                         print(f"\tGenetic Algoritm: {pr_max} runtime {(end_time - start_time):.2f}")
 
                     # --- Populate storage_ab for comparison CSV ---
                     if 'Ens' in methods_to_run:
-                        storage_ab[l][problem_display_name][new_constants.cost]['Ens'] = storage[problem_display_name][new_constants.cost]['Ens']['best']
+                        storage_ab[l][problem_display_name][constants.cost]['Ens'] = storage[problem_display_name][constants.cost]['Ens']['best']
                     # Removed 'CL' and 'MLP' population
                     if 'BF' in methods_to_run:
-                        storage_ab[l][problem_display_name][new_constants.cost]['BF'] = storage[problem_display_name][new_constants.cost]['BF']['best']
+                        storage_ab[l][problem_display_name][constants.cost]['BF'] = storage[problem_display_name][constants.cost]['BF']['best']
 
                     # Removed calculation of Diff and Rel as they depended on 'CL' and 'BF'
                     # If you need comparison between Ens and BF, you'd add similar logic here
