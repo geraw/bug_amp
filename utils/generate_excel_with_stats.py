@@ -23,25 +23,16 @@ def convert_csv_to_excel_with_stats(csv_filepath, num_to_check=20, num_of_tests=
     """
     try:
         # Load the CSV into a pandas DataFrame
-        # Consider specifying encoding if known, e.g., encoding='utf-8' or encoding='latin1'
         df = pd.read_csv(csv_filepath)
 
-        # --- REFINED BUG FIX START ---
-        # Convert all columns to numeric, coercing errors like '#DIV/0!' to NaN.
-        # This is crucial for statistical calculations.
+        # --- BUG FIX START ---
+        # Convert all columns to numeric, coercing errors to NaN.
+        # This ensures that all columns that should contain numbers are correctly interpreted,
+        # and any non-numeric entries that caused the bug are converted to NaN,
+        # allowing mean() and std() to process them.
         for col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
-
-        # Calculate overall average and standard deviation.
-        # Columns that become entirely NaN after coercion will have NaN for mean/std.
-        overall_averages = df.mean(numeric_only=True)
-        overall_stds = df.std(numeric_only=True)
-
-        # Fill NaN results from mean/std with 0.0, if that is the desired output behavior
-        # for columns that had no valid numeric data (e.g., all #DIV/0! or empty).
-        overall_averages = overall_averages.fillna(0.0)
-        overall_stds = overall_stds.fillna(0.0)
-        # --- REFINED BUG FIX END ---
+        # --- BUG FIX END ---
 
         # Get column headers from the CSV
         csv_headers = df.columns.tolist()
@@ -85,6 +76,12 @@ def convert_csv_to_excel_with_stats(csv_filepath, num_to_check=20, num_of_tests=
             cell.alignment = center_aligned_text
             cell.border = thin_border
 
+        # --- Calculate overall average and standard deviation for each column ---
+        # Now, overall_averages and overall_stds will correctly include values for
+        # deadlock_1k_BF_5th and deadlock_1k_BF_10th if they were successfully converted to numeric.
+        overall_averages = df.mean(numeric_only=True)
+        overall_stds = df.std(numeric_only=True)
+
         # Initialize the current row for writing data in Excel (starts after header row)
         excel_row = 2 # Data starts from row 2 now
 
@@ -98,15 +95,13 @@ def convert_csv_to_excel_with_stats(csv_filepath, num_to_check=20, num_of_tests=
             cell_avrg_label.border = thin_border
 
             for col_idx, header in enumerate(csv_headers):
-                # Retrieve value. Since we used fillna(0.0), it won't be NaN unless
-                # the header itself doesn't exist in the Series.
                 value = overall_averages.get(header)
                 cell = sheet.cell(row=excel_row, column=col_idx + 3) # Data starts from column 3
-                if value is not None: # No need for math.isnan since NaNs are filled
+                if value is not None and not math.isnan(value):
                     cell.value = round(value, 3) # Round to 3 decimal places
                     cell.number_format = number_format
                 else:
-                    cell.value = '' # Fallback if header not found (shouldn't happen with current logic)
+                    cell.value = '' # Empty for NaN
                 cell.border = thin_border
             excel_row += 1
 
@@ -118,14 +113,13 @@ def convert_csv_to_excel_with_stats(csv_filepath, num_to_check=20, num_of_tests=
             cell_std_label.border = thin_border
 
             for col_idx, header in enumerate(csv_headers):
-                # Retrieve value.
                 value = overall_stds.get(header)
                 cell = sheet.cell(row=excel_row, column=col_idx + 3) # Data starts from column 3
-                if value is not None: # No need for math.isnan since NaNs are filled
+                if value is not None and not math.isnan(value):
                     cell.value = round(value, 3) # Round to 3 decimal places
                     cell.number_format = number_format
                 else:
-                    cell.value = '' # Fallback
+                    cell.value = '' # Empty for NaN
                 cell.border = thin_border
             excel_row += 1
 
