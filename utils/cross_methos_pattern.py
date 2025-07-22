@@ -40,7 +40,7 @@ def collect(directory, method, budgets):
         prob = fname.split("_")[1]
         problems.append(prob)
         df = pd.read_excel(os.path.join(directory, fname),
-                           sheet_name="גיליון1", header=None)
+                           sheet_name="Results", header=None)
         col = COL_MAP[method]
         for b in budgets:
             rows = df.index[df.iloc[:,0] == b].tolist()

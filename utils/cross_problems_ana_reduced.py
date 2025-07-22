@@ -38,7 +38,7 @@ def generate_graphs(directory, case_sizes):
 
         for name, path in problem_files:
             try:
-                df = pd.read_excel(path, sheet_name="גיליון1")
+                df = pd.read_excel(path, sheet_name="Results")
             except Exception as e:
                 print(f"Error reading {path}: {e}")
                 continue # Skip to the next file

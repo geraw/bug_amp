@@ -24,7 +24,7 @@ def generate_graph(directory, case_size):
                      for f in sorted(os.listdir(directory)) if f.endswith(".xlsx")]
 
     for name, path in problem_files:
-        df = pd.read_excel(path, sheet_name="גיליון1")
+        df = pd.read_excel(path, sheet_name="Results")
         match_indices = df.index[df.iloc[:, 0] == case_size].tolist()
 
         if not match_indices:
