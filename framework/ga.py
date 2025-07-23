@@ -15,7 +15,7 @@ import eckity.termination_checkers
 from eckity.evaluators.simple_individual_evaluator import SimpleIndividualEvaluator
 import numpy as np
 import constants
-import setup
+import framework.setup as setup
 
 
 class BugHuntingEvaluator(SimpleIndividualEvaluator):

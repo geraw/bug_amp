@@ -15,7 +15,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import wilcoxon
 
-METHODS = ["Ans", "BF", "SA", "GA"]
+METHODS = ["Ans", "GA", "BF", "SA"]
 PAIRS = [(a, b) for i, a in enumerate(METHODS) for b in METHODS[i+1:]]
 ALPHA = 0.05
 
@@ -24,10 +24,7 @@ def tikz_box(p, color):
         return ""
     label = "<0.001" if p < 0.001 else f"{p:.3f}"
     return (
-        r"\tikz[baseline]{\node[draw="
-        + color +
-        ", fill=" + color + "!25, inner sep=2pt, rounded corners=1pt]"
-        "{" + label + "};}"
+        r"\colorbox{" + color + "!25}{" + label + "}"
     )
 
 def collect_best(df, method):
@@ -61,30 +58,29 @@ def process_file(filepath):
         elif 0.05 < p < 0.95:
             row.append(tikz_box(p, "gray"))
         else:
-            # row.append("")
             row.append(tikz_box(p, "red"))
-
     return row
 
 def main(directory: str):
     d = Path(directory)
-    headers = ["Problem"] + [f"{a}$\\leftrightarrow${b}" for a, b in PAIRS]
+    headers = ["Problem"] + [f"{a}$\\rightarrow${b}" for a, b in PAIRS]
     rows = []
 
     for f in sorted(d.glob("results_*.xlsx")):
         row = process_file(f)
         if row:
             rows.append(row)
-            
+
     tex = [
         r"\begin{table}[ht]",
         r"\small",
-        r"\setlength{\tabcolsep}{1pt}",
-        r"\renewcommand{\arraystretch}{1.0}",
+        # r"\setlength{\tabcolsep}{1pt}",
+        # r"\renewcommand{\arraystretch}{1.0}",
         r"\centering",
         r"\begin{tabular}{|l|" + "c|" * (len(headers)-1) + r"}",
         r"\hline",
-        " & ".join(headers) + r" \\ \hline"
+        r"\rowcolor{gray!25}",
+        " & ".join(headers) + r" \\ \hline \hline"
     ]
     for r in rows:
         tex.append(" & ".join(r) + r" \\ \hline")
@@ -93,9 +89,9 @@ def main(directory: str):
         r"\caption{Wilcoxon one-sided signed-rank test results on \textbf{best} scores. "
         r"Each cell shows the $p$-value for the hypothesis that the left method "
         r"performs better than the right (e.g., Ans$\rightarrow$BF). "
-        r"\textcolor{green}{Green boxes} indicate significant results ($p\le0.05$), "
-        r"\textcolor{gray}{Gray boxes} indicate no significance ($0.05<p<0.95$), "
-        r"and \textcolor{red}{Red boxes} indicate evidence in the opposite direction.}",
+        r"\colorbox{green!25}{Green boxes} indicate significant results ($p\le0.05$), "
+        r"\colorbox{gray!25}{gray boxes} indicate no significance ($0.05<p<0.95$), "
+        r"and \colorbox{red!25}{red boxes} indicate evidence in the opposite direction.} "
         r"\label{tab:wilcoxon-best}",
         r"\end{table}"
     ]

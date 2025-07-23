@@ -18,13 +18,13 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 
 from imblearn.over_sampling import SMOTE
-from eitan import *
-from ga import *
+from framework.eitan import *
+from framework.ga import *
 from scipy.optimize import basinhopping
 
 import constants
 from constants import *
-from setup import *
+from framework.setup import *
 import simulate
 import time
 

@@ -34,9 +34,9 @@ from scipy.optimize import basinhopping # Not explicitly used in the final versi
 # Assuming these are available as per your original script
 # Make sure eitan.py, ga.py, setup.py, simulate.py are in your Python path
 # or same directory.
-from eitan import using_next_point # Assuming this is the core function from eitan.py
-from ga import run_ga # Assuming this is the core function from ga.py
-from setup import generate_initial_examples, accumulate_data, train, find_max_predicted_prob, find_max_prob, set_run_test, set_prob # Assuming these are from setup.py
+from framework.eitan import using_next_point # Assuming this is the core function from eitan.py
+from framework.ga import run_ga # Assuming this is the core function from ga.py
+from framework.setup import generate_initial_examples, accumulate_data, train, find_max_predicted_prob, find_max_prob, set_run_test, set_prob # Assuming these are from setup.py
 import simulate # Assuming simulate contains the prob functions if not in interface_function
 
 # --- Global variables (mostly for compatibility with original script structure) ---

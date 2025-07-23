@@ -2,7 +2,7 @@
 
 import numpy as np
 import constants
-import setup 
+import framework.setup as setup 
 
 def generate_within_bounds(u, epsilon, bounds):
     new_value = [0]*len(u)

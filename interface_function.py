@@ -1,24 +1,24 @@
 # Interface function
 
 
-from a_more_complex_threads import init_complex, thread0_complex, thread1_complex
-from Shared_flag_Boolean import FirstArmy, SecondArmy, initArmy
-from condition_variables import Dequeue1, Dequeue2, Enqueue, init_queue
-from insufficient_lock import init_lock, thread_lock_0, thread_lock_1
+from problems.a_more_complex_threads import  init_complex, thread0_complex, thread1_complex
+from problems.Shared_flag_Boolean import FirstArmy, SecondArmy, initArmy
+from problems.condition_variables import Dequeue1, Dequeue2, Enqueue, init_queue
+from problems.insufficient_lock import init_lock, thread_lock_0, thread_lock_1
 from simulate import simulate
-from the_barrier import init_fireball, thread_1, thread_2, thread_main
-from non_atomic_instructions import init_NonAtomic, thread0_NonAtomic, thread1_NonAtomic, thread2_NonAtomic
-from simple_counter_dragons import five_headed_dragon, three_headed_dragon, init_dragon
-from test_and_set import t11, t12, init1
-from general_peterson import peterson_custome1, peterson_custome2, peterson_custome3, peterson_custome4, init_peterson
-from deadlock import init_deadlock, dl_thread0, dl_thread1
-from waiter import init_waiter, waiter, signaler
-from race import init_race_to_wait, race_to_wait_thread_1, race_to_wait_thread_2
-from signalAndWait import init_signal_then_wait, signal_then_wait_thread_0, signal_then_wait_thread_1
-from sleepingGuard import init_sleeping_guard, sleeping_guard_consumer, sleeping_guard_producer
-from phantom_permit import init_phantom_permit, phantom_permit_thread_0, phantom_permit_thread_1
-from bypass import init_atomicity_bypass, atomicity_thread_a, atomicity_thread_b
-import setup
+from problems.the_barrier import init_fireball, thread_1, thread_2, thread_main
+from problems.non_atomic_instructions import init_NonAtomic, thread0_NonAtomic, thread1_NonAtomic, thread2_NonAtomic
+from problems.simple_counter_dragons import five_headed_dragon, three_headed_dragon, init_dragon
+from problems.test_and_set import t11, t12, init1
+from problems.general_peterson import peterson_custome1, peterson_custome2, peterson_custome3, peterson_custome4, init_peterson
+from problems.deadlock import init_deadlock, dl_thread0, dl_thread1
+from problems.waiter import init_waiter, waiter, signaler
+from problems.race import init_race_to_wait, race_to_wait_thread_1, race_to_wait_thread_2
+from problems.signalAndWait import init_signal_then_wait, signal_then_wait_thread_0, signal_then_wait_thread_1
+from problems.sleepingGuard import init_sleeping_guard, sleeping_guard_consumer, sleeping_guard_producer
+from problems.phantom_permit import init_phantom_permit, phantom_permit_thread_0, phantom_permit_thread_1
+from problems.bypass import init_atomicity_bypass, atomicity_thread_a, atomicity_thread_b
+import framework.setup as setup
 import constants
 
 
