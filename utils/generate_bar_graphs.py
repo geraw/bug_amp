@@ -17,7 +17,7 @@ def collect_data(directory, test_cases):
             problem_name = filename.split(".")[0]
         problem_names.append(problem_name)
         data[problem_name] = {}
-        df = pd.read_excel(os.path.join(directory, filename), sheet_name="Results")
+        df = pd.read_excel(os.path.join(directory, filename), sheet_name="גיליון1")
         for method, col in zip(target_methods, col_indices):
             data[problem_name][method] = {}
             for case_size in test_cases:
