@@ -36,6 +36,19 @@ pip install -r requirements.txt
 ```
 
 > Requires Python 3.9 or higher.
+### 🧬 EC-KitY Installation
+
+This project uses [EC-KitY](https://github.com/EC-KitY/EC-KitY), a Python evolutionary computation library, to support genetic algorithm functionality.
+
+To install EC-KitY manually, run the following commands:
+
+```bash
+git clone https://github.com/EC-KitY/EC-KitY.git
+mv EC-KitY/eckity eckity
+pip install -r EC-KitY/requirements.txt
+pip install scikit-optimize
+```
+
 
 ## 📈 Usage Examples
 
