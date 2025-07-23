@@ -18,6 +18,9 @@ bug_amp/
 ├── framework/           # Search methods and execution environment
 ├── reports/             # Generated results in CSV and LaTeX
 ├── utils/               # Helper scripts for visualization and logging
+├── reports/             # Output for Excel reports 
+├── results/             # The article result data 
+├── utils/               # Helper scripts for visualization and logging
 ├── run_benchmark.py     # Entry point for experiments
 └── requirements.txt     # Python dependencies
 ````
@@ -52,8 +55,8 @@ python run_benchmark.py --problems if_not_while --method ga
 
 The `run_benchmark.py` script now accepts the following additional parameters:
 
-  * `--problems PROBLEMS`: Problems to run. 'all' for all problems, or a comma-separated list of specific problem names (e.g., 'if_not_while,broken_barrier'). Available: atomicity_bypass, broken_barrier, broken_peterson, delayed_write, flagged_deadlock, if_not_while, lock_order_inversion, lost_signal, partial_lock, phantom_permit, race_to_wait, racy_increment, semaphore_leak, shared_counter, shared_flag, signal_then_wait, sleeping_guard.
-  * `--method METHOD`: Methods to run. 'all' for all methods, or a comma-separated list of specific method names (e.g., 'Ens,GA'). Available: Ens, BF, SA, GA.
+  * `--problems PROBLEMS`: Problems to run. 'all' for all problems (Default), or a comma-separated list of specific problem names (e.g., 'if_not_while,broken_barrier'). Available: atomicity_bypass, broken_barrier, broken_peterson, delayed_write, flagged_deadlock, if_not_while, lock_order_inversion, lost_signal, partial_lock, phantom_permit, race_to_wait, racy_increment, semaphore_leak, shared_counter, shared_flag, signal_then_wait, sleeping_guard.
+  * `--method METHOD`: Methods to run. 'all' for all methods (Default), or a comma-separated list of specific method names (e.g., 'Ens,GA'). Available: Ens, BF, SA, GA.
   * `--NUM_TO_CHECK NUM_TO_CHECK`: Number of increment steps (test budget) for every problem. Default: 20.
   * `--NUM_OF_TESTS NUM_OF_TESTS`: Number of tests for calculating the AVR and SDT of the methods. Default: 50.
   * `--N_TRAIN N_TRAIN`: Number of random elements (increments) that the classifier is trained on. Default: 100.
